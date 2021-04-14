@@ -91,6 +91,10 @@
     fill: var(--user-status-offline);
 }
 
+.user[status="Idle"] > .user-inner > .avatar > svg > circle {
+    fill: var(--user-status-idle);
+}
+
 /*
 
 .channel-inner {

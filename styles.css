@@ -55,6 +55,7 @@ html {
     --deprecated-text-input-prefix: #dcddde;
     --user-status-online: #00ff00;
     --user-status-dnd: #ff0000;
+    --user-status-idle: #ffff00;
     --user-status-offline: #1e1e1e;
 }
 
