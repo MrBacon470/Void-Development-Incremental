@@ -10,6 +10,7 @@
         <link rel="stylesheet" type="text/css" href="css/channel-list.css" />
         <link rel="stylesheet" type="text/css" href="css/users-list.css" />
         <script type="text/javascript" src="JS/functions/tabs.js"></script>
+        <script type="text/javascript" src="JS/functions/profiles.js"></script>
         <script type="text/javascript" src="JS/data.js" defer></script>
         <script type="text/javascript" src="JS/main.js" defer></script>
     </head>
@@ -55,10 +56,34 @@
             </div>
             <div class="users-list">
                 <div class="role-header">
-                    <p>Staff-Admin &#8212; 0</p>
+                    <!--Will put JS soon:tm: (avocado5182)-->
+                    <p>Developer &#8212; 1</p>
                 </div>
-                <div class="user" uid="lepoggres" onclick="openProfile(this.attributes.uid.value)">
-                    <p>Le Poggres | Testing Long Names</p>
+                <div class="user" uid="void" status="DND" onclick="openProfile(this.attributes.uid.value)">
+                    <div class="user-inner">
+                        <div class="avatar">
+                            <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
+                            <svg width="12" height="12">
+                                <circle cx="6" cy="6" r="6" fill="white"/>
+                            </svg>
+                        </div>
+                        <p>Le Poggres | Testing Long Names</p>
+                    </div>
+                </div>
+                <div class="role-header">
+                    <!--Will put JS soon:tm: (avocado5182)-->
+                    <p>Staff-Admin &#8212; 1</p>
+                </div>
+                <div class="user" uid="lepoggres" status="Online" onclick="openProfile(this.attributes.uid.value)">
+                    <div class="user-inner">
+                        <div class="avatar">
+                            <img class="pfp" src="https://cdn.discordapp.com/avatars/543817742487388179/801863b7b703ca8481108f20fa95bc31.png?size=128" alt=" ">
+                            <svg width="12" height="12">
+                                <circle cx="6" cy="6" r="6" fill="white"/>
+                            </svg>
+                        </div>
+                        <p>Le Poggres | Testing Long Names</p>
+                    </div>
                 </div>
             </div>
         </div>
