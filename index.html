@@ -1,47 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Void Development Incremental</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/1834ff6409.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css" href="styles.css" />
-    <link rel="stylesheet" type="text/css" href="css/channel-list.css" />
-</head>
-<body>
-    <div class="app">
-        <div class="channel-list">
-            <div class="text-channel selected">
-                <i class="channel-ping"></i>
-                <div class="channel-inner">
-                    <i class="fas fa-hashtag"></i>
-                    <p>Welcome</p>
+    <head>
+        <meta charset="UTF-8">
+        <title>Void Development Incremental</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+        <script src="https://kit.fontawesome.com/1834ff6409.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="styles.css" />
+        <link rel="stylesheet" type="text/css" href="css/channel-list.css" />
+        <script type="text/javascript" src="JS/functions/tab-switch.js"></script>
+        <script type="text/javascript" src="JS/data.js" defer></script>
+        <script type="text/javascript" src="JS/main.js" defer></script>
+    </head>
+    <body>
+        <div class="app">
+            <div class="channel-list">
+                <div class="channel text-channel" chid="welcome" onclick="tabSwitch(this.attributes.chid.value)">
+                    <i class="channel-ping"></i>
+                    <div class="channel-inner">
+                        <i class="fas fa-hashtag"></i>
+                        <p>Welcome</p>
+                    </div>
+                </div>
+                <div class="channel text-channel active" chid="general" onclick="tabSwitch(this.attributes.chid.value)">
+                    <i class="channel-ping"></i>
+                    <div class="channel-inner">
+                        <i class="fas fa-hashtag"></i>
+                        <p>General</p>
+                    </div>
+                </div>
+                <div class="channel voice-channel" chid="voice-general" onclick="tabSwitch(this.attributes.chid.value)">
+                    <i class="channel-ping"></i>
+                    <div class="channel-inner">
+                        <i class="fas fa-volume-up"></i>
+                        <p>General</p>
+                    </div>
                 </div>
             </div>
-            <div class="text-channel active">
-                <i class="channel-ping"></i>
-                <div class="channel-inner">
-                    <i class="fas fa-hashtag"></i>
-                    <p>General</p>
-                </div>
-            </div>
-            <div class="voice-channel">
-                <i class="channel-ping"></i>
-                <div class="channel-inner">
-                    <i class="fas fa-volume-up"></i>
-                    <p>General</p>
-                </div>
-            </div>
-        </div>
-        <div class="message-list">
+            <div class="message-list">
 
-        </div>
-        <div class="users-list">
+            </div>
+            <div class="users-list">
 
+            </div>
         </div>
-    </div>
-</body>
-    <script type="text/javascript" src="JS/data.js"></script>
-    <script type="text/javascript" src="JS/main.js"></script>
+    </body>
 </html>

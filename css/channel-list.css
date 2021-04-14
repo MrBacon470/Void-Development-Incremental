@@ -8,7 +8,7 @@
 
 
 
-.text-channel, .voice-channel {
+.channel {
     margin-top: 0.1em;
     margin-bottom: 0.1em;
     cursor: pointer;
@@ -51,12 +51,12 @@
     color: var(--interactive-hover);
 }
 
-.text-channel.selected > .channel-inner {
+.channel.selected > .channel-inner {
     background-color: var(--background-modifier-selected);
     cursor: auto;
 }
 
-.text-channel.selected > .channel-inner > p {
+.channel.selected > .channel-inner > p {
     color: var(--interactive-active);
 }
 
@@ -75,13 +75,13 @@
     margin-right: 0.2em;
 }
 
-.text-channel.active > .channel-ping, .voice-channel.active > .channel-ping {
+.channel.active > .channel-ping {
     height: 0.6em;
     border-bottom-right-radius: 0.3em;
     border-top-right-radius: 0.3em;
     background-color: var(--interactive-active);
 }
 
-.text-channel.active p, .voice-channel.active p {
+.channel.active p {
     color: var(--interactive-active);
 }
