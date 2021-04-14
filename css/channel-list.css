@@ -85,3 +85,44 @@
 .channel.active p {
     color: var(--interactive-active);
 }
+
+.channel.collapsed:not(.active):not(.selected) {
+    display: none;
+}
+
+
+
+.channel-group-header {
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-top: 2em;
+    font-size: 0.7em;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.channel-group-header > i {
+    font-size: 0.75em;
+    margin-right: 1em;
+    color: var(--channels-default);
+    -webkit-transition: -webkit-transform .2s ease-out;
+    transition: -webkit-transform .2s ease-out;
+    transition: transform .2s ease-out;
+    transition: transform .2s ease-out, -webkit-transform .2s ease-out;
+}
+
+.channel-group-header > p {
+    text-transform: uppercase;
+    color: var(--channels-default);
+}
+
+.channel-group-header:hover > * {
+    color: var(--interactive-hover);
+}
+
+.channel-group-header.collapsed > i {
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
