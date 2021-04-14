@@ -14,14 +14,14 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+}
 
+.user > p {
     display: block;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-
-
 
 /*
 

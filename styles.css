@@ -72,6 +72,6 @@ body {
 
 .app {
     display: grid;
-    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-columns: 1fr 3fr 15em;
     min-height: 100vh;
 }
