@@ -1,0 +1,64 @@
+.channel-list {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    background-color: var(--background-secondary);
+}
+
+
+
+.text-channel, .voice-channel {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-top: 0.1em;
+    margin-bottom: 0.1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    border-radius: 0.25em;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.text-channel > i, .voice-channel > i {
+    color: var(--text-muted);
+    flex-basis: 1.6em;
+}
+
+.text-channel > p, .voice-channel > p {
+    color: var(--channels-default);
+}
+
+.text-channel > p:before, .voice-channel > p:before {
+    font-size: 1.25em;
+}
+
+.text-channel:hover, .voice-channel:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.text-channel:hover > p, .voice-channel:hover > p {
+    color: var(--interactive-hover);
+}
+
+.text-channel.selected, .voice-channel.selected {
+    background-color: var(--background-modifier-selected);
+    cursor: auto;
+}
+
+.text-channel.selected > p, .voice-channel.selected > p {
+    color: var(--interactive-active);
+}
+
+
+
+.text-channel > p {
+    text-transform: lowercase;
+}
+.voice-channel > p {
+    text-transform: capitalize;
+}
