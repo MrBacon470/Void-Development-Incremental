@@ -9,56 +9,79 @@
 
 
 .text-channel, .voice-channel {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
     margin-top: 0.1em;
     margin-bottom: 0.1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-    border-radius: 0.25em;
     cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-.text-channel > i, .voice-channel > i {
+.channel-inner {
+    margin-right: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    border-radius: 0.25em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.channel-inner > i {
     color: var(--text-muted);
     flex-basis: 1.6em;
 }
 
-.text-channel > p, .voice-channel > p {
+.channel-inner > p {
     color: var(--channels-default);
 }
 
-.text-channel > p:before, .voice-channel > p:before {
+.channel-inner > p:before {
     font-size: 1.25em;
 }
 
-.text-channel:hover, .voice-channel:hover {
+.channel-inner:hover {
     background-color: var(--background-modifier-hover);
 }
 
-.text-channel:hover > p, .voice-channel:hover > p {
+.channel-inner:hover > p {
     color: var(--interactive-hover);
 }
 
-.text-channel.selected, .voice-channel.selected {
+.text-channel.selected > .channel-inner {
     background-color: var(--background-modifier-selected);
     cursor: auto;
 }
 
-.text-channel.selected > p, .voice-channel.selected > p {
+.text-channel.selected > .channel-inner > p {
     color: var(--interactive-active);
 }
 
 
 
-.text-channel > p {
+.text-channel p {
     text-transform: lowercase;
 }
-.voice-channel > p {
+.voice-channel p {
     text-transform: capitalize;
+}
+
+
+.channel-ping {
+    width: 0.3em;
+    margin-right: 0.2em;
+}
+
+.text-channel.active > .channel-ping, .voice-channel.active > .channel-ping {
+    height: 0.6em;
+    border-bottom-right-radius: 0.3em;
+    border-top-right-radius: 0.3em;
+    background-color: var(--interactive-active);
+}
+
+.text-channel.active p, .voice-channel.active p {
+    color: var(--interactive-active);
 }
