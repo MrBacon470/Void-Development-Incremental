@@ -9,15 +9,15 @@
     flex-basis: 1.6em;
 }
 
-.messages {
+.messages-header {
 	position: relative;
 }
 
-.messages::before {
+.messages-header::after {
 	content: "";
     position: absolute;
     display: block;
-    top: -1px;
+    bottom: -1px;
     left: 0;
     right: 0;
     height: 1px;
