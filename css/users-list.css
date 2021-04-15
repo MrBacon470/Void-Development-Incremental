@@ -22,10 +22,13 @@
 }
 
 .user {
+    --avatar-size: 2em;
+    --circle-size: 0.6em;
+
     margin-top: 0.1em;
     padding: 0.5em 0.2em;
     margin-bottom: 0.1em;
-    height: 3em;
+    height: var(--avatar-size);
 }
 
 .user.selected > .user-inner {
@@ -55,6 +58,7 @@
 
 .user-inner > .avatar {
     height: 100%;
+    position: relative;
 }
 
 .user-inner > .avatar > .pfp {
@@ -63,94 +67,54 @@
     margin-right: 0.5em;
 }
 
-.user-inner > .avatar > svg {
+.user-inner > .avatar > .status {
     position: absolute;
-    /* 3em for pfp size, 12px for circle size */
-    top: calc(100% - 12px - 0.45em);
-    left: calc(3em - 12px + 0.45em);
+
+    width: var(--circle-size);
+    height: var(--circle-size);
+
+    border-radius: calc(0.9 * var(--circle-size));
+
+    border: calc(0.4 * var(--circle-size)) solid var(--background-secondary);
+
+    top: calc(var(--avatar-size) - 1.4 * var(--circle-size));
+    left: calc(var(--avatar-size) - 1.4 * var(--circle-size));
 }
 
-.user-inner > p {
-    display: block;
+.user-inner:hover > .avatar > .status {
+    border: calc(0.4 * var(--circle-size)) solid var(--background-secondary-modifier-hover);
+}
+
+.user.selected > .user-inner > .avatar > .status {
+    border: calc(0.4 * var(--circle-size)) solid var(--background-secondary-modifier-selected);
+}
+
+.user-inner .user-text {
     overflow: hidden;
     white-space: nowrap;
+}
+
+.user-inner .name, .user-inner .desc {
+    overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* Should I use JS? probably. but later */
-
-.user[status="Online"] > .user-inner > .avatar > svg > circle {
-    fill: var(--user-status-online);
-}
-
-.user[status="DND"] > .user-inner > .avatar > svg > circle {
-    fill: var(--user-status-dnd);
-}
-
-.user[status="Offline"] > .user-inner > .avatar > svg > circle {
-    fill: var(--user-status-offline);
-}
-
-.user[status="Idle"] > .user-inner > .avatar > svg > circle {
-    fill: var(--user-status-idle);
-}
-
-
-/*
-.channel-inner {
-    margin-right: 0.5em;
-    padding-left: 1em;
-    padding-right: 1em;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-    border-radius: 0.25em;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-grow: 1;
-}
-.channel-inner > i {
-    color: var(--text-muted);
-    flex-basis: 1.6em;
-}
-.channel-inner > p {
+.user-inner .desc {
     color: var(--channels-default);
+    font-size: 0.75em;
 }
-.channel-inner > p:before {
-    font-size: 1.25em;
+
+.user[status="Online"] > .user-inner > .avatar > .status {
+    background-color: var(--user-status-online);
 }
-.channel-inner:hover {
-    background-color: var(--background-modifier-hover);
+
+.user[status="DND"] > .user-inner > .avatar > .status {
+    background-color: var(--user-status-dnd);
 }
-.channel-inner:hover > p {
-    color: var(--interactive-hover);
+
+.user[status="Offline"] > .user-inner > .avatar > .status {
+    background-color: var(--user-status-offline);
 }
-.text-channel p {
-    text-transform: lowercase;
+
+.user[status="Idle"] > .user-inner > .avatar > .status {
+    background-color: var(--user-status-idle);
 }
-.voice-channel p {
-    text-transform: capitalize;
-}
-.channel-ping {
-    width: 0.3em;
-    margin-right: 0.2em;
-}
-.channel.active > .channel-ping {
-    height: 0.6em;
-    border-bottom-right-radius: 0.3em;
-    border-top-right-radius: 0.3em;
-    background-color: var(--interactive-active);
-}
-.channel.active p {
-    color: var(--interactive-active);
-}
-.channel.collapsed:not(.active):not(.selected) {
-    display: none;
-}
-.channel-group-header:hover > * {
-    color: var(--interactive-hover);
-}
-.channel-group-header.collapsed > i {
-    -webkit-transform: rotate(-90deg);
-    transform: rotate(-90deg);
-} */

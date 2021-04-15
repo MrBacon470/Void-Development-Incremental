@@ -5,8 +5,8 @@
         <title>Void Development Incremental</title>
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
-        <link href="https://db.onlinewebfonts.com/c/294afa63edf49dc293dd90373066b4d4?family=Whitney" rel="stylesheet">
         <script src="https://kit.fontawesome.com/1834ff6409.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="fonts/Whitney/style.css" />
         <link rel="stylesheet" type="text/css" href="styles.css" />
         <link rel="stylesheet" type="text/css" href="css/channel-list.css" />
         <link rel="stylesheet" type="text/css" href="css/messages.css" />
@@ -60,7 +60,35 @@
                     <div id="messages-header-channel"></div>
                 </div>
                 <div id="messages" class="messages">
-                    <div class="messages-fill"></div>
+                    <div class="messages-fill">
+                        <div class="messages-channel" chid="welcome">
+                            <div class="message first">
+                                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
+                                <p class="name">VoidCloud <span class="timestamp">Today, 16:50</span></p>
+                                <p class="text">Actually, I wanted to say</p>
+                            </div>
+                            <div class="message">
+                                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
+                                <p class="name">VoidCloud <span class="timestamp">Today, 16:50</span></p>
+                                <p class="text">Thanks to everyone who worked with me on this project</p>
+                            </div>
+                            <div class="message">
+                                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
+                                <p class="name">VoidCloud <span class="timestamp">Today, 16:51</span></p>
+                                <p class="text">It was amazing</p>
+                            </div>
+                            <div class="message first">
+                                <img class="pfp" src="https://cdn.discordapp.com/avatars/708748287909298318/a_371eb402927697221fe3b59b0a315537.gif?size=1024" alt=" ">
+                                <p class="name">Flamening <span class="timestamp">Today, 16:51</span></p>
+                                <p class="text">yay!</p>
+                            </div>
+                            <div class="message first">
+                                <img class="pfp" src="https://cdn.discordapp.com/avatars/366022305668923402/2d139cf3e0b984d49fbc24704c3142f9.webp?size=1024" alt=" ">
+                                <p class="name">Kauk@ <span class="timestamp">Today, 16:51</span></p>
+                                <p class="text">poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll:</p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="messages-footer">
                         <input id="messages-input" class="messages-input" placeholder="Message #welcome"/>
                     </div>
@@ -75,11 +103,12 @@
                     <div class="user-inner">
                         <div class="avatar">
                             <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
-                            <svg width="12" height="12">
-                                <circle cx="6" cy="6" r="6" fill="white"/>
-                            </svg>
+                            <div class="status"></div>
                         </div>
-                        <p>VoidCloud | Unproductive Dev</p>
+                        <div class="user-text">
+                            <p class="name">VoidCloud</p>
+                            <p class="desc">Playing <strong>Void Development Incremental</strong></p>
+                        </div>
                     </div>
                 </div>
                 <div class="role-header">
@@ -90,22 +119,24 @@
                     <div class="user-inner">
                         <div class="avatar">
                             <img class="pfp" src="https://cdn.discordapp.com/avatars/543817742487388179/801863b7b703ca8481108f20fa95bc31.png?size=128" alt=" ">
-                            <svg width="12" height="12">
-                                <circle cx="6" cy="6" r="6" fill="white"/>
-                            </svg>
+                            <div class="status"></div>
                         </div>
-                        <p>Avocado.NET | Testing Long Names</p>
+                        <div class="user-text">
+                            <p class="name">Avocado.NET</p>
+                            <p class="desc">Testing Long Names</p>
+                        </div>
                     </div>
                 </div>
                 <div class="user" uid="flamer" status="Idle" onclick="openProfile(this.attributes.uid.value)">
                     <div class="user-inner">
                         <div class="avatar">
                             <img class="pfp" src="https://cdn.discordapp.com/avatars/708748287909298318/a_371eb402927697221fe3b59b0a315537.gif?size=1024" alt=" ">
-                            <svg width="12" height="12">
-                                <circle cx="6" cy="6" r="6" fill="white"/>
-                            </svg>
+                            <div class="status"></div>
                         </div>
-                        <p>Flamening | Idle Status.js</p>
+                        <div class="user-text">
+                            <p class="name">Flamening</p>
+                            <p class="desc">Idle Status.js</p>
+                        </div>
                     </div>
                 </div>
                 <div class="role-header">
@@ -116,11 +147,12 @@
                     <div class="user-inner">
                         <div class="avatar">
                             <img class="pfp" src="https://cdn.discordapp.com/avatars/366022305668923402/2d139cf3e0b984d49fbc24704c3142f9.webp?size=1024" alt=" ">
-                            <svg width="12" height="12">
-                                <circle cx="6" cy="6" r="6" fill="white"/>
-                            </svg>
+                            <div class="status"></div>
                         </div>
-                        <p>Kauk@ | Swag Coin</p>
+                        <div class="user-text">
+                            <p class="name">Kauk@</p>
+                            <p class="desc">Swag Coin</p>
+                        </div>
                     </div>
                 </div>
 
