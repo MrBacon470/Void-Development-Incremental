@@ -1,5 +1,6 @@
 function Save() {
     let data = {
+        tab: activeTab
     }
     localStorage.setItem("VDI",JSON.stringify(data))
 }
@@ -9,10 +10,12 @@ function Load() {
     let saveData = localStorage.getItem("data")
 
     if(!saveData) {
+        tabSwitch("welcome")
         return
     }
     else {
         saveData = JSON.parse(saveData)
+        tabSwitch(saveData.tab)
     }
 /*
     if(typeof saveData.watts !== "undefined"){
