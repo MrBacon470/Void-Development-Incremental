@@ -57,6 +57,9 @@ html {
     --user-status-dnd: #ff0000;
     --user-status-idle: #ffff00;
     --user-status-offline: #1e1e1e;
+
+    --background-secondary-modifier-hover: #34363C;
+    --background-secondary-modifier-selected: #393C43;
 }
 
 body {
@@ -67,6 +70,7 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+
 @font-face {
   font-family: "Whitney";
     src: url("https://db.onlinewebfonts.com/t/294afa63edf49dc293dd90373066b4d4.eot"); /* IE9*/
@@ -76,10 +80,15 @@ body {
     url("https://db.onlinewebfonts.com/t/294afa63edf49dc293dd90373066b4d4.ttf") format("truetype"), /* chrome firefox opera Safari, Android, iOS 4.2+*/
     url("https://db.onlinewebfonts.com/t/294afa63edf49dc293dd90373066b4d4.svg#Whitney") format("svg"); /* iOS 4.1- */
 }
+
 * {
     font-family: 'Whitney', 'Noto Sans', sans-serif;
     color: var(--text-normal);
     margin: 0;
+}
+
+strong {
+    font-weight: 500;
 }
 
 .app {
