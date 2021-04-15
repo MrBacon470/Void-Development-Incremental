@@ -1,3 +1,5 @@
+@import url(//db.onlinewebfonts.com/c/294afa63edf49dc293dd90373066b4d4?family=Whitney);
+
 html {
     --header-primary: #fff;
     --header-secondary: #b9bbbe;
@@ -55,6 +57,7 @@ html {
     --deprecated-text-input-prefix: #dcddde;
     --user-status-online: #00ff00;
     --user-status-dnd: #ff0000;
+    --user-status-idle: #ffff00;
     --user-status-offline: #1e1e1e;
 }
 
@@ -68,7 +71,7 @@ body {
 }
 
 * {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Whitney', 'Noto Sans', sans-serif;
     color: var(--text-normal);
     margin: 0;
 }

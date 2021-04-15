@@ -91,8 +91,11 @@
     fill: var(--user-status-offline);
 }
 
-/*
+.user[status="Idle"] > .user-inner > .avatar > svg > circle {
+    fill: var(--user-status-idle);
+}
 
+/*
 .channel-inner {
     margin-right: 0.5em;
     padding-left: 1em;
@@ -105,60 +108,47 @@
     align-items: center;
     flex-grow: 1;
 }
-
 .channel-inner > i {
     color: var(--text-muted);
     flex-basis: 1.6em;
 }
-
 .channel-inner > p {
     color: var(--channels-default);
 }
-
 .channel-inner > p:before {
     font-size: 1.25em;
 }
-
 .channel-inner:hover {
     background-color: var(--background-modifier-hover);
 }
-
 .channel-inner:hover > p {
     color: var(--interactive-hover);
 }
-
 .text-channel p {
     text-transform: lowercase;
 }
 .voice-channel p {
     text-transform: capitalize;
 }
-
-
 .channel-ping {
     width: 0.3em;
     margin-right: 0.2em;
 }
-
 .channel.active > .channel-ping {
     height: 0.6em;
     border-bottom-right-radius: 0.3em;
     border-top-right-radius: 0.3em;
     background-color: var(--interactive-active);
 }
-
 .channel.active p {
     color: var(--interactive-active);
 }
-
 .channel.collapsed:not(.active):not(.selected) {
     display: none;
 }
-
 .channel-group-header:hover > * {
     color: var(--interactive-hover);
 }
-
 .channel-group-header.collapsed > i {
     -webkit-transform: rotate(-90deg);
     transform: rotate(-90deg);
