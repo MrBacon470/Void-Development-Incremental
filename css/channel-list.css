@@ -6,6 +6,28 @@
     background-color: var(--background-secondary);
 }
 
+.channel-list-header {
+    height: 48px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.channel-list-header::after {
+    content: "";
+    position: absolute;
+    display: block;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    -webkit-box-shadow: var(--elevation-low);
+    box-shadow: var(--elevation-low);
+    z-index: 1;
+    pointer-events: none;
+}
+
 
 
 .channel {
