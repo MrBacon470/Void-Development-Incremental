@@ -8,6 +8,13 @@ function tabSwitch(chid, isVoice = false, displayName = '') {
     }
     document.getElementById('messages-header-channel').innerText = displayName === '' ? chid : displayName;
     document.getElementById('messages-header-type').className = isVoice ? 'fas fa-volume-up' : 'fas fa-hashtag';
+    if (isVoice) {
+        document.getElementById('messages').style.display = 'none';
+    } else {
+        document.getElementById('messages').style.display = '';
+        document.getElementById('messages-input').placeholder = 'Message #' + chid;
+        document.getElementById('messages-input').focus();
+    }
 }
 
 function collapseTabGroup(chgroup) {
