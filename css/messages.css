@@ -1,0 +1,28 @@
+.messages-header {
+    height: 48px;
+    display: flex;
+    padding: 0 8px;
+    align-items: center;
+}
+
+.messages-header i {
+    flex-basis: 1.6em;
+}
+
+.messages {
+	position: relative;
+}
+
+.messages::before {
+	content: "";
+    position: absolute;
+    display: block;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    -webkit-box-shadow: var(--elevation-low);
+    box-shadow: var(--elevation-low);
+    z-index: 1;
+    pointer-events: none;
+}
