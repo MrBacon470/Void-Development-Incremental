@@ -69,7 +69,7 @@ body {
 }
 
 * {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Whitney', 'Noto Sans', sans-serif;
     color: var(--text-normal);
     margin: 0;
 }
