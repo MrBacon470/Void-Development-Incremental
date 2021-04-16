@@ -1,3 +1,55 @@
+<template>
+<div class="users-list">
+    <div v-for="(role, roleID) in roles" :key="roleID">
+        <div class="role-header">
+            <p>{{ role.title }} &#8212; {{ Object.keys(usersByRole[roleID]).length }}</p>
+        </div>
+        <div v-for="(user, userID) in usersByRole[roleID]" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+            <div class="user-inner">
+                <div class="avatar">
+                    <img class="pfp" :src="user.profileImage" :alt="user.username">
+                    <div class="status"></div>
+                </div>
+                <div class="user-text">
+                    <p class="name" :style="{ color: role.color }">{{ user.username }}</p>
+                    <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
+                    <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+import { userdata, roles } from '../userdata.js';
+
+export default {
+    name: 'members-list',
+    data() {
+        return { userdata, roles }
+    },
+    computed: {
+        usersByRole() {
+            const users = Object.keys(userdata);
+            return Object.keys(roles).reduce((acc, curr) => {
+                acc[curr] = users.filter(user => userdata[user].role === curr).reduce((acc, curr) => {
+                    acc[curr] = userdata[curr];
+                    return acc;
+                }, {});
+                return acc;
+            }, {});
+        }
+    },
+    methods: {
+        openProfile(/*userID*/) {
+
+        }
+    }
+}
+</script>
+
+<style>
 .users-list {
     display: flex;
     flex-direction: column;
@@ -118,3 +170,4 @@
 .user[status="Idle"] > .user-inner > .avatar > .status {
     background-color: var(--user-status-idle);
 }
+</style>
