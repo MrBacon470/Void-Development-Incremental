@@ -10,11 +10,11 @@ let startData = {
 	categories: {
 		info: {
 			title: '-={info}=-',
-			type: 'text',
 			collapsed: false,
 			channels: {
 				welcome: {
 					title: 'welcome',
+					type: 'text',
 					messages: [
 					{
 						timestamp: Date.now(),
@@ -28,11 +28,11 @@ let startData = {
 		},
 		general: {
 			title: '-={General Chatting}=-',
-			type: 'text',
 			collapsed: false,
 			channels: {
 				general: {
 					title: 'general',
+					type: 'text',
 					description: "This is where you talk about things | Be nice :)",
 					ping: true,
 					messages: []
@@ -41,11 +41,11 @@ let startData = {
 		},
 		voice: {
 			title: '-={vcs}=-',
-			type: 'voice',
 			collapsed: false,
 			channels: {
 				general: {
 					title: 'General',
+					type: 'voice',
 					description: "Place where you can talk and listen to music!"
 				}
 			}

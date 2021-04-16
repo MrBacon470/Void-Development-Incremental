@@ -3,8 +3,8 @@
     <div class="messages-header">
         <i :class="{
             fas: true,
-            'fa-hashtag': type === 'text',
-            'fa-volume-up': type === 'voice'
+            'fa-hashtag': channel.type === 'text',
+            'fa-volume-up': channel.type === 'voice'
         }"></i>
         <div class="channel-header">{{ channel.title }}</div>
         <div class="divider"></div>
@@ -48,9 +48,6 @@ export default {
         channel() {
             const { category, channel } = this.player.activeChannel;
             return this.player.categories[category].channels[channel];
-        },
-        type() {
-            return this.player.categories[this.player.activeChannel.category].type;
         }
     },
     methods: {
