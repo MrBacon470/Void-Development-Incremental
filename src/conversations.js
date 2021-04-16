@@ -37,4 +37,13 @@ function updateConversations() {
     */
 }
 
-export { startConversation, updateConversations };
+function addMessage(category, channel, message) {
+	let messages = window.player.categories[category].channels[channel].messages;
+	message.first = messages.length === 0 ||
+					messages[messages.length - 1].userId !== message.userId ||
+					// separate messages if they're 7 minutes apart
+					message.timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000;
+	messages.push(message);
+}
+
+export { startConversation, updateConversations, addMessage };

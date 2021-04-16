@@ -13,21 +13,27 @@
     <div class="messages" v-if="type !== 'voice'">
         <div class="messages-fill"></div>
         <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
-        <div class="messages-footer">
-            <input class="messages-input" :placeholder="'Message #' + channel.title"/>
-        </div>
+        <form class="messages-footer" v-on:submit.prevent="sendMessage">
+            <input class="messages-input" v-model="message" :placeholder="'Message #' + channel.title"/>
+        </form>
     </div>
 </div>
 </template>
 
 <script>
 import Message from './Message.vue';
+import { addMessage } from '../conversations.js';
 
 export default {
 	name: 'channel',
 	components: {
 		Message
 	},
+    data() {
+        return {
+            message: ''
+        }
+    },
     computed: {
         channel() {
             const { category, channel } = this.player.activeChannel;
@@ -35,6 +41,17 @@ export default {
         },
         type() {
             return this.player.categories[this.player.activeChannel.category].type;
+        }
+    },
+    methods: {
+        sendMessage() {
+            const { category, channel } = this.player.activeChannel;
+            addMessage(category, channel, {
+                content: this.message,
+                timestamp: Date.now(),
+                userId: 667109969438441486
+            });
+            this.message = "";
         }
     }
 }

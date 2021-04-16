@@ -41,7 +41,8 @@ let startData = {
 				general: {
 					title: 'general',
 					description: "This is where talk about things | Be nice :)",
-					ping: true
+					ping: true,
+					messages: []
 				}
 			}
 		},
