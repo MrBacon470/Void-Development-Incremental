@@ -9,6 +9,7 @@
     "deploy": "node scripts/gh-pages-deploy.js"
   },
   "dependencies": {
+    "core-js": "^3.10.1",
     "vue": "^2.6.12",
     "vue2-perfect-scrollbar": "^1.5.0"
   },

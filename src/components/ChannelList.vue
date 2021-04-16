@@ -1,31 +1,46 @@
 <template>
 <div class="channel-list">
     <div class="channel-list-header">Void Development Incremental</div>
-    <div v-for="(category, categoryID) in player.categories" :key="categoryID">
-        <div class="channel-group-header" v-on:click="collapseTabGroup(categoryID)" :key="categoryID">
-            <i class="fas fa-chevron-down"></i>
-            <p>{{ category.title }}</p>
-        </div>
-        <div v-for="(channel, channelID) in category.channels" :key="categoryID + channelID"
-            :class="{
-                channel: true,
-                'text-channel': channel.type === 'text',
-                'voice-channel': channel.type === 'voice',
-                'announcement-channel': channel.type === 'announcement',
-                selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
-                collapsed: category.collapsed
-            }" v-on:click="switchChannel(categoryID, channelID)">
-            <i v-if="channel.ping" class="channel-ping"></i>
-            <div class="channel-inner">
-                <i :class="{
-                    fas: true,
-                    'fa-hashtag': channel.type === 'text',
-                    'fa-volume-up': channel.type === 'voice',
-                    'fa-bullhorn': channel.type === 'announcement',
-                }"></i>
-                <p>{{ channel.title }}</p>
+    <div class="channel-list-inner">
+        <div v-for="(category, categoryID) in player.categories" :key="categoryID">
+            <div class="channel-group-header" v-on:click="collapseTabGroup(categoryID)" :key="categoryID">
+                <i class="fas fa-chevron-down"></i>
+                <p>{{ category.title }}</p>
+            </div>
+            <div v-for="(channel, channelID) in category.channels" :key="categoryID + channelID"
+                :class="{
+                    channel: true,
+                    'text-channel': channel.type === 'text',
+                    'voice-channel': channel.type === 'voice',
+                    'announcement-channel': channel.type === 'announcement',
+                    selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
+                    collapsed: category.collapsed
+                }" v-on:click="switchChannel(categoryID, channelID)">
+                <i v-if="channel.ping" class="channel-ping"></i>
+                <div class="channel-inner">
+                    <i :class="{
+                        fas: true,
+                        'fa-hashtag': channel.type === 'text',
+                        'fa-volume-up': channel.type === 'voice',
+                        'fa-bullhorn': channel.type === 'announcement',
+                    }"></i>
+                    <p>{{ channel.title }}</p>
+                </div>
             </div>
         </div>
+    </div>
+    <div class="channel-list-footer">
+        <div class="avatar">
+            <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt="VoidCloud">
+            <div class="status"></div>
+        </div>
+        <div class="data">
+            <p class="name">VoidCloud</p>
+            <p class="desc">0 <span class="influence">Influence</span></p>
+        </div>
+        <button>
+            <i class="fas fa-cog"></i>
+        </button>
     </div>
 </div>
 </template>
@@ -76,6 +91,12 @@ export default {
     pointer-events: none;
 }
 
+.channel-list-inner {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
 
 
 .channel {
@@ -192,5 +213,81 @@ export default {
 .channel-group-header.collapsed > i {
     -webkit-transform: rotate(-90deg);
     transform: rotate(-90deg);
+}
+
+
+.channel-list-footer {
+    background-color: var(--background-secondary-alt);
+
+    --avatar-size: 2em;
+    --circle-size: 0.6em;
+    height: calc(var(--avatar-size));
+    padding: 0.5em;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.channel-list-footer > .avatar {
+    height: 100%;
+    position: relative;
+}
+
+.channel-list-footer > .avatar > .pfp {
+    height: 100%;
+    border-radius: 50%;
+    margin-right: 0.5em;
+}
+
+.channel-list-footer > .avatar > .status {
+    position: absolute;
+
+    width: var(--circle-size);
+    height: var(--circle-size);
+
+    border-radius: calc(0.9 * var(--circle-size));
+
+    border: calc(0.4 * var(--circle-size)) solid var(--background-secondary-alt);
+
+    top: calc(var(--avatar-size) - 1.4 * var(--circle-size));
+    left: calc(var(--avatar-size) - 1.4 * var(--circle-size));
+
+    background-color: var(--user-status-online);
+}
+
+.channel-list-footer > .data {
+    flex-grow: 1;
+}
+
+.channel-list-footer .name {
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.channel-list-footer .desc {
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.channel-list-footer .influence {
+    color: var(--color-influence);
+    font-weight: normal;
+}
+
+.channel-list-footer > button {
+    font-size: 1em;
+    height: 2em;
+    width: 2em;
+    border-radius: 0.25em;
+
+    background: none;
+    border: 0;
+
+    cursor: pointer;
+}
+
+.channel-list-footer > button:hover {
+    background-color: var(--background-modifier-hover);
 }
 </style>
