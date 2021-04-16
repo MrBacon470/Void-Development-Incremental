@@ -99,13 +99,18 @@ function fixData(data, startData) {
 }
 let loadedData = localStorage.getItem(storageKey);
 if (loadedData == null) {
-	loadedData = startData;
+	loadedData = JSON.parse(JSON.stringify(startData));
 } else {
-	loadedData = Object.assign({}, startData, JSON.parse(atob(loadedData)));
-	fixData(loadedData, startData);
+	loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
+	fixData(loadedData, JSON.parse(JSON.stringify(startData)));
 }
-const store = window.player = Vue.observable(loadedData);
+let store = window.player = Vue.observable(loadedData);
 Vue.prototype.player = store;
+
+// Hard reset function!
+window.hardReset = function() {
+	Object.assign(store, JSON.parse(JSON.stringify(startData)));
+}
 
 // Set up auto-saving every second
 window.save = function() {
