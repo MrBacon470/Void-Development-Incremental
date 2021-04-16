@@ -72,7 +72,7 @@ export default {
 .messages-header {
     height: 3em;
     display: flex;
-    padding: 0 8px;
+    padding: 0 0.5em;
     align-items: center;
 }
 
@@ -90,18 +90,18 @@ export default {
 
 .divider {
     width: 1px;
-    height: 24px;
-    margin: 0 16px;
+    height: 1.5em;
+    margin: 0 1em;
     background: var(--background-modifier-accent);
 }
 
 .channel-description {
-    font-weight: 500;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 0.9em;
+    line-height: 1.2em;
+    padding-top: 0.2em;
     color: var(--header-secondary);
 }
 
@@ -122,7 +122,7 @@ export default {
 .messages {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 48px);
+    height: calc(100% - 3em);
 }
 
 .messages-fill {
@@ -155,6 +155,6 @@ export default {
     color: var(--text-normal);
       font-weight: 400;
     font-size: 1em;
-    line-height: 1.375rem;
+    line-height: 1.375em;
 }
 </style>

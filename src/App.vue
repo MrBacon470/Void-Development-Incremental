@@ -82,6 +82,8 @@ html {
 
     --background-secondary-modifier-hover: #34363C;
     --background-secondary-modifier-selected: #393C43;
+
+    --color-influence: #5B85AA;
 }
 
 body {
