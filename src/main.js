@@ -21,14 +21,7 @@ let startData = {
 						content: "Testerest",
 						userId: 350057688182292482,
 						first: true
-					},
-					{
-						timestamp: Date.now(),
-						content: "Testerest",
-						userId: 350057688182292482,
-						first: true
-					}
-					],
+					}],
 					description: ":blobwave:"
 				},
 			}
@@ -40,7 +33,7 @@ let startData = {
 			channels: {
 				general: {
 					title: 'general',
-					description: "This is where talk about things | Be nice :)",
+					description: "This is where you talk about things | Be nice :)",
 					ping: true,
 					messages: []
 				}

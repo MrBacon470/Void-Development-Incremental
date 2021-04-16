@@ -33,12 +33,27 @@ export const userdata = {
         role: 'kuaka-salesman',
         status: "Offline",
         customStatus: "Swag Coin"
+    },
+    596115906153807882: {
+        profileImage: "https://cdn.discordapp.com/avatars/596115906153807882/65781bcb0c4eff2f5b2bb545aa5d59fb.webp?size=1024",
+        username: "Jacorb",
+        role: 'staff-admin',
+        status: 'Idle',
+        customStatus: 'Snoopers gonna snoop'
+    },
+    131211055849275392: {
+        profileImage: "https://cdn.discordapp.com/avatars/131211055849275392/f9abf31d943912a5c9899fe8f875c9a0.webp?size=1024",
+        username: "ThePaperPilot",
+        role: 'staff-helper',
+        status: 'Online',
+        playing: 'Sublime Text'
     }
 };
 
 export const roles = {
     'developer': { title: 'Developer', color: 'rgb(184, 105, 255)' },
     'staff-admin': { title: 'Staff-Admin', color: 'rgb(255, 0, 0)' },
+    'staff-helper': { title: 'Staff-Helper', color: 'rgb(127, 245, 206)'},
     'kuaka-salesman': { title: 'Kuaka Salesman', color: 'rgb(189, 17, 255)' },
     'yes': { title: 'Yes', color: 'rgb(131, 126, 252)' }
 }
