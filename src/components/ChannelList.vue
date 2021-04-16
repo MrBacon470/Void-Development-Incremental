@@ -9,8 +9,8 @@
         <div v-for="(channel, channelID) in category.channels" :key="categoryID + channelID"
             :class="{
                 channel: true,
-                'text-channel': category.type === 'text',
-                'voice-channel': category.type === 'voice',
+                'text-channel': channel.type === 'text',
+                'voice-channel': channel.type === 'voice',
                 selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
                 collapsed: category.collapsed
             }" v-on:click="switchChannel(categoryID, channelID)">
@@ -18,8 +18,8 @@
             <div class="channel-inner">
                 <i :class="{
                     fas: true,
-                    'fa-hashtag': category.type === 'text',
-                    'fa-volume-up': category.type === 'voice'
+                    'fa-hashtag': channel.type === 'text',
+                    'fa-volume-up': channel.type === 'voice'
                 }"></i>
                 <p>{{ channel.title }}</p>
             </div>
