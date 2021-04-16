@@ -11,7 +11,8 @@
                 channel: true,
                 'text-channel': category.type === 'text',
                 'voice-channel': category.type === 'voice',
-                selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID
+                selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
+                collapsed: category.collapsed
             }" v-on:click="switchChannel(categoryID, channelID)">
             <i v-if="channel.ping" class="channel-ping"></i>
             <div class="channel-inner">
