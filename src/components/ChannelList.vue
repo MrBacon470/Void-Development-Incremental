@@ -11,6 +11,7 @@
                 channel: true,
                 'text-channel': channel.type === 'text',
                 'voice-channel': channel.type === 'voice',
+                'announcement-channel': channel.type === 'announcement',
                 selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
                 collapsed: category.collapsed
             }" v-on:click="switchChannel(categoryID, channelID)">
@@ -19,7 +20,8 @@
                 <i :class="{
                     fas: true,
                     'fa-hashtag': channel.type === 'text',
-                    'fa-volume-up': channel.type === 'voice'
+                    'fa-volume-up': channel.type === 'voice',
+                    'fa-bullhorn': channel.type === 'announcement',
                 }"></i>
                 <p>{{ channel.title }}</p>
             </div>

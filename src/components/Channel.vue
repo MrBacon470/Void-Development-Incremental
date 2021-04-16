@@ -4,13 +4,14 @@
         <i :class="{
             fas: true,
             'fa-hashtag': channel.type === 'text',
-            'fa-volume-up': channel.type === 'voice'
+            'fa-volume-up': channel.type === 'voice',
+            'fa-bullhorn': channel.type === 'announcement'
         }"></i>
         <div class="channel-header">{{ channel.title }}</div>
         <div class="divider"></div>
         <div class="channel-description">{{ channel.description }}</div>
     </div>
-    <div class="messages" v-if="type !== 'voice'">
+    <div class="messages" v-if="channel.type !== 'voice' || channel.type !== 'announcement'">
         <div class="messages-fill"></div>
         <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
         <form class="messages-footer" v-on:submit.prevent="sendMessage">

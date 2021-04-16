@@ -12,6 +12,12 @@ let startData = {
 			title: '-={info}=-',
 			collapsed: false,
 			channels: {
+				announcements: {
+					title: 'announcements',
+					type: 'announcement',
+					messages: [],
+					description: "Announcements Here :P"
+				},
 				welcome: {
 					title: 'welcome',
 					type: 'text',
