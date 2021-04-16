@@ -1,3 +1,25 @@
+<template>
+<div class="app">
+	<channel-list />
+	<channel />
+	<members-list />
+</div>
+</template>
+
+<script>
+import ChannelList from './components/ChannelList.vue';
+import Channel from './components/Channel.vue';
+import MembersList from './components/MembersList';
+
+export default {
+	name: 'App',
+	components: {
+		ChannelList, Channel, MembersList
+	}
+}
+</script>
+
+<style>
 html {
     --header-primary: #fff;
     --header-secondary: #b9bbbe;
@@ -53,10 +75,18 @@ html {
     --deprecated-text-input-border-hover: #040405;
     --deprecated-text-input-border-disabled: #202225;
     --deprecated-text-input-prefix: #dcddde;
+    --user-status-online: #00ff00;
+    --user-status-dnd: #ff0000;
+    --user-status-idle: #ffff00;
+    --user-status-offline: #1e1e1e;
+
+    --background-secondary-modifier-hover: #34363C;
+    --background-secondary-modifier-selected: #393C43;
 }
 
 body {
     background: var(--background-primary);
+    color: var(--text-normal);
 
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -65,13 +95,18 @@ body {
 }
 
 * {
-    font-family: 'Noto Sans', sans-serif;
-    color: var(--text-normal);
+    font-family: 'Whitney', 'Noto Sans', sans-serif;
+    color: inherit;
     margin: 0;
+}
+
+strong {
+    font-weight: 500;
 }
 
 .app {
     display: grid;
-    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-columns: 15em 3fr 15em;
     min-height: 100vh;
 }
+</style>

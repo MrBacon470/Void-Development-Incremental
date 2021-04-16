@@ -1,9 +1,79 @@
+<template>
+<div class="channel-list">
+    <div class="channel-list-header">Void Development Incremental</div>
+    <div v-for="(category, categoryID) in player.categories" :key="categoryID">
+        <div class="channel-group-header" v-on:click="collapseTabGroup(categoryID)" :key="categoryID">
+            <i class="fas fa-chevron-down"></i>
+            <p>{{ category.title }}</p>
+        </div>
+        <div v-for="(channel, channelID) in category.channels" :key="categoryID + channelID"
+            :class="{
+                channel: true,
+                'text-channel': channel.type === 'text',
+                'voice-channel': channel.type === 'voice',
+                'announcement-channel': channel.type === 'announcement',
+                selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
+                collapsed: category.collapsed
+            }" v-on:click="switchChannel(categoryID, channelID)">
+            <i v-if="channel.ping" class="channel-ping"></i>
+            <div class="channel-inner">
+                <i :class="{
+                    fas: true,
+                    'fa-hashtag': channel.type === 'text',
+                    'fa-volume-up': channel.type === 'voice',
+                    'fa-bullhorn': channel.type === 'announcement',
+                }"></i>
+                <p>{{ channel.title }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+export default {
+	name: 'channel-list',
+    methods: {
+        collapseTabGroup(group) {
+            this.player.categories[group].collapsed = !this.player.categories[group].collapsed;
+        },
+        switchChannel(category, channel) {
+            this.player.activeChannel = { category, channel };
+        }
+    }
+}
+</script>
+
+<style>
 .channel-list {
     display: flex;
     flex-direction: column;
     align-items: stretch;
 
     background-color: var(--background-secondary);
+}
+
+.channel-list-header {
+    height: 3em;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    color: var(--header-primary);
+}
+
+.channel-list-header::after {
+    content: "";
+    position: absolute;
+    display: block;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    -webkit-box-shadow: var(--elevation-low);
+    box-shadow: var(--elevation-low);
+    z-index: 1;
+    pointer-events: none;
 }
 
 
@@ -72,10 +142,7 @@
 
 .channel-ping {
     width: 0.3em;
-    margin-right: 0.2em;
-}
-
-.channel.active > .channel-ping {
+    margin-right: -0.3em;
     height: 0.6em;
     border-bottom-right-radius: 0.3em;
     border-top-right-radius: 0.3em;
@@ -126,3 +193,4 @@
     -webkit-transform: rotate(-90deg);
     transform: rotate(-90deg);
 }
+</style>
