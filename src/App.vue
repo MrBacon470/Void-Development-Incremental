@@ -1,3 +1,25 @@
+<template>
+<div class="app">
+	<channel-list />
+	<channel />
+	<members-list />
+</div>
+</template>
+
+<script>
+import ChannelList from './components/ChannelList.vue';
+import Channel from './components/Channel.vue';
+import MembersList from './components/MembersList';
+
+export default {
+	name: 'App',
+	components: {
+		ChannelList, Channel, MembersList
+	}
+}
+</script>
+
+<style>
 html {
     --header-primary: #fff;
     --header-secondary: #b9bbbe;
@@ -87,3 +109,4 @@ strong {
     grid-template-columns: 15em 3fr 15em;
     min-height: 100vh;
 }
+</style>
