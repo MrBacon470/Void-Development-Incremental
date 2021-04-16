@@ -1,33 +1,16 @@
 function Save() {
-    let data = {
-        tab: activeTab
-    }
-    localStorage.setItem("VDI",JSON.stringify(data))
+    localStorage.setItem("VDI",JSON.stringify(player))
 }
 
 function Load() {
 
     let saveData = localStorage.getItem("data")
-
+    
     if(!saveData) {
         tabSwitch("welcome")
         return
     }
     else {
-        saveData = JSON.parse(saveData)
-        tabSwitch(saveData.tab)
+        player = JSON.parse(saveData)
     }
-/*
-    if(typeof saveData.watts !== "undefined"){
-        watts = saveData.watts
-    }
-    for(let i = 0; i < 8; i++) {
-        if(typeof saveData.genLevels !== "undefined") genLevels[i] = saveData.genLevels[i]
-    }
- */
-
-}
-console.log(localStorage.getItem("VDI"))
-
-
 Load()

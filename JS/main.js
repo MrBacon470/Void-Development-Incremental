@@ -1,11 +1,27 @@
 
-
-
-
-
-
-
-
+let player = {
+  "welcome": {
+    messages: [
+      {
+        timestamp: Date.now(),
+        content: "Testerest",
+        userId: 350057688182292482,
+        first: true
+      },
+      {
+        timestamp: Date.now(),
+        content: "Testerest",
+        userId: 350057688182292482,
+        first: true
+      }
+    ],
+    description: ":blobwave:"
+  },
+  "general": {
+    description: "This is where talk about things | Be nice :)"
+  },
+  activeTab: "welcome"
+}
 
 window.setInterval(function () {
     Save()

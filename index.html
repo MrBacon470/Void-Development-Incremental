@@ -11,10 +11,13 @@
         <link rel="stylesheet" type="text/css" href="css/channel-list.css" />
         <link rel="stylesheet" type="text/css" href="css/messages.css" />
         <link rel="stylesheet" type="text/css" href="css/users-list.css" />
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+        <script type="text/javascript" src="JS/main.js"></script>
+        <script type="text/javascript" src="JS/component.js" defer></script>
         <script type="text/javascript" src="JS/functions/tabs.js"></script>
         <script type="text/javascript" src="JS/functions/profiles.js"></script>
         <script type="text/javascript" src="JS/data.js" defer></script>
-        <script type="text/javascript" src="JS/main.js" defer></script>
     </head>
     <body>
         <div class="app">
@@ -54,46 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div class="message-list">
-                <div class="messages-header">
-                    <i id="messages-header-type" class="fas"></i>
-                    <div id="messages-header-channel"></div>
-                </div>
-                <div id="messages" class="messages">
-                    <div class="messages-fill">
-                        <div class="messages-channel" chid="welcome">
-                            <div class="message first">
-                                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
-                                <p class="name">VoidCloud <span class="timestamp">Today, 16:50</span></p>
-                                <p class="text">Actually, I wanted to say</p>
-                            </div>
-                            <div class="message">
-                                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
-                                <p class="name">VoidCloud <span class="timestamp">Today, 16:50</span></p>
-                                <p class="text">Thanks to everyone who worked with me on this project</p>
-                            </div>
-                            <div class="message">
-                                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
-                                <p class="name">VoidCloud <span class="timestamp">Today, 16:51</span></p>
-                                <p class="text">It was amazing</p>
-                            </div>
-                            <div class="message first">
-                                <img class="pfp" src="https://cdn.discordapp.com/avatars/708748287909298318/a_371eb402927697221fe3b59b0a315537.gif?size=1024" alt=" ">
-                                <p class="name">Flamening <span class="timestamp">Today, 16:51</span></p>
-                                <p class="text">yay!</p>
-                            </div>
-                            <div class="message first">
-                                <img class="pfp" src="https://cdn.discordapp.com/avatars/366022305668923402/2d139cf3e0b984d49fbc24704c3142f9.webp?size=1024" alt=" ">
-                                <p class="name">Kauk@ <span class="timestamp">Today, 16:51</span></p>
-                                <p class="text">poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll: poll:</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="messages-footer">
-                        <input id="messages-input" class="messages-input" placeholder="Message #welcome"/>
-                    </div>
-                </div>
-            </div>
+            <channel :data="data" :player="player" :name="player.activeTab"></channel>
             <div class="users-list">
                 <div class="role-header">
                     <!--Will put JS soon:tm: (avocado5182)-->
@@ -155,7 +119,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </body>
