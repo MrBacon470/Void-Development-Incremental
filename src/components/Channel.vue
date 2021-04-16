@@ -14,7 +14,7 @@
         <div class="messages-fill"></div>
         <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
-            <input class="messages-input" v-model="message" :placeholder="'Message #' + channel.title"/>
+            <input class="messages-input" v-model="message" :placeholder="'Message #' + channel.title" ref="input" />
         </form>
     </div>
 </div>
@@ -32,6 +32,16 @@ export default {
     data() {
         return {
             message: ''
+        }
+    },
+    mounted() {
+        this.$refs.input.focus();
+    },
+    watch: {
+        channel: function() {
+            if (this.type === 'text') {
+                this.$nextTick(() => this.$refs.input.focus());
+            }
         }
     },
     computed: {
