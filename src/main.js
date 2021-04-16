@@ -109,7 +109,7 @@ Vue.prototype.player = store;
 
 // Set up auto-saving every second
 window.save = function() {
-	if (store.autoSave) {
+	if (store.autosave) {
 		localStorage.setItem(storageKey, btoa(JSON.stringify(window.player)));
 	}
 }
