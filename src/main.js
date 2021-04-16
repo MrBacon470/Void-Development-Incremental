@@ -51,7 +51,8 @@ let startData = {
 			collapsed: false,
 			channels: {
 				general: {
-					title: 'General'
+					title: 'General',
+					description: "Place where you can talk and listen to music!"
 				}
 			}
 		}
