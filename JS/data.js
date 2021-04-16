@@ -5,12 +5,12 @@ function Save() {
 function Load() {
 
     let saveData = localStorage.getItem("data")
-    
-    if(!saveData) {
+
+    if (!saveData) {
         tabSwitch("welcome")
         return
-    }
-    else {
+    } else {
         player = JSON.parse(saveData)
     }
+}
 Load()
