@@ -3,7 +3,7 @@
     <div class="channel-list-header">Void Development Incremental</div>
     <div class="channel-list-inner">
         <div v-for="(category, categoryID) in player.categories" :key="categoryID">
-            <div class="channel-group-header" v-on:click="collapseTabGroup(categoryID)" :key="categoryID">
+            <div class="channel-group-header" :class="{collapsed: category.collapsed}" v-on:click="collapseTabGroup(categoryID)" :key="categoryID">
                 <i class="fas fa-chevron-down"></i>
                 <p>{{ category.title }}</p>
             </div>
@@ -14,6 +14,7 @@
                     'voice-channel': channel.type === 'voice',
                     'announcement-channel': channel.type === 'announcement',
                     selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
+                    active: channel.ping,
                     collapsed: category.collapsed
                 }" v-on:click="switchChannel(categoryID, channelID)">
                 <i v-if="channel.ping" class="channel-ping"></i>
