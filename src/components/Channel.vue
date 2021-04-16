@@ -15,7 +15,7 @@
         <div class="messages-fill"></div>
         <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
-            <input class="messages-input" v-model="message" :placeholder="'Message #' + channel.title" ref="input" />
+            <input class="messages-input" v-model="message" :placeholder="'Message #' + channel.title" ref="input" v-if="channel.type !== 'voice'"/>
         </form>
     </div>
 </div>
