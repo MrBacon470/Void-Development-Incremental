@@ -1,7 +1,7 @@
 <template>
 <div :class="{ message: true, first: message.first }">
-    <img class="pfp" :src="pfps[message.userId]" :alt="usernames[message.userId]">
-    <p class="name">{{ usernames[message.userId] }}
+    <img class="pfp" :src="userdata.profileImage" :alt="userdata.username">
+    <p class="name" :style="{ color: roleColor }">{{ userdata.username }}
         <span class="timestamp">{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
     </p>
     <p class="text">{{ message.content }}</p>
@@ -9,12 +9,17 @@
 </template>
 
 <script>
-import { pfps, usernames } from '../userdata.js';
+import { userdata, roles } from '../userdata.js';
 
 export default {
 	name: 'message',
-    data() {
-        return { pfps, usernames }
+    computed: {
+        userdata() {
+            return userdata[this.message.userId];
+        },
+        roleColor() {
+            return roles[userdata[this.message.userId].role].color;
+        }
     },
     props: [
         'message'

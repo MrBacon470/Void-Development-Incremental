@@ -1,62 +1,20 @@
 <template>
 <div class="users-list">
-    <div class="role-header">
-        <!--Will put JS soon:tm: (avocado5182)-->
-        <p>Developer &#8212; 1</p>
-    </div>
-    <div class="user" uid="void" status="DND" onclick="openProfile(this.attributes.uid.value)">
-        <div class="user-inner">
-            <div class="avatar">
-                <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt=" ">
-                <div class="status"></div>
-            </div>
-            <div class="user-text">
-                <p class="name">VoidCloud</p>
-                <p class="desc">Playing <strong>Void Development Incremental</strong></p>
-            </div>
+    <div v-for="(role, roleID) in roles" :key="roleID">
+        <div class="role-header">
+            <p>{{ role.title }} &#8212; {{ Object.keys(usersByRole[roleID]).length }}</p>
         </div>
-    </div>
-    <div class="role-header">
-        <!--Will put JS soon:tm: (avocado5182)-->
-        <p>Staff-Admin &#8212; 2</p>
-    </div>
-    <div class="user" uid="lepoggres" status="Online" onclick="openProfile(this.attributes.uid.value)">
-        <div class="user-inner">
-            <div class="avatar">
-                <img class="pfp" src="https://cdn.discordapp.com/avatars/543817742487388179/801863b7b703ca8481108f20fa95bc31.png?size=128" alt=" ">
-                <div class="status"></div>
-            </div>
-            <div class="user-text">
-                <p class="name">Avocado.NET</p>
-                <p class="desc">Testing Long Names</p>
-            </div>
-        </div>
-    </div>
-    <div class="user" uid="flamer" status="Idle" onclick="openProfile(this.attributes.uid.value)">
-        <div class="user-inner">
-            <div class="avatar">
-                <img class="pfp" src="https://cdn.discordapp.com/avatars/708748287909298318/a_371eb402927697221fe3b59b0a315537.gif?size=1024" alt=" ">
-                <div class="status"></div>
-            </div>
-            <div class="user-text">
-                <p class="name">Flamening</p>
-                <p class="desc">Idle Status.js</p>
-            </div>
-        </div>
-    </div>
-    <div class="role-header">
-        <!--Will put JS soon:tm: (avocado5182)-->
-        <p>Kuaka Coin Salesman &#8212; 1</p>
-    </div>
-    <div class="user" uid="kuaka" status="Offline" onclick="openProfile(this.attributes.uid.value)">
-        <div class="user-inner">
-            <div class="avatar">
-                <img class="pfp" src="https://cdn.discordapp.com/avatars/366022305668923402/2d139cf3e0b984d49fbc24704c3142f9.webp?size=1024" alt=" ">
-                <div class="status"></div>
-            </div>
-            <div class="user-text">
-                <p class="name">Kauk@</p>
-                <p class="desc">Swag Coin</p>
+        <div v-for="(user, userID) in usersByRole[roleID]" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+            <div class="user-inner">
+                <div class="avatar">
+                    <img class="pfp" :src="user.profileImage" :alt="user.username">
+                    <div class="status"></div>
+                </div>
+                <div class="user-text">
+                    <p class="name" :style="{ color: role.color }">{{ user.username }}</p>
+                    <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
+                    <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -64,10 +22,28 @@
 </template>
 
 <script>
+import { userdata, roles } from '../userdata.js';
+
 export default {
     name: 'members-list',
+    data() {
+        return { userdata, roles }
+    },
+    computed: {
+        usersByRole() {
+            const users = Object.keys(userdata);
+            return Object.keys(roles).reduce((acc, curr) => {
+                acc[curr] = users.filter(user => userdata[user].role === curr).reduce((acc, curr) => {
+                    acc[curr] = userdata[curr];
+                    return acc;
+                }, {});
+                return acc;
+            }, {});
+        }
+    },
     methods: {
-        openProfile(user) {
+        openProfile(/*userID*/) {
+
         }
     }
 }
