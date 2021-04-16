@@ -68,5 +68,6 @@ export default {
     line-height: 1.375em;
     font-weight: 300;
     user-select: text;
+    word-break: break-all;
 }
 </style>
