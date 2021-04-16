@@ -20,6 +20,9 @@ let player = {
   "general": {
     description: "This is where talk about things | Be nice :)"
   },
+  "General": {
+    description: "Place where you can talk and listen to music!"
+  },
   activeTab: "welcome"
 }
 
