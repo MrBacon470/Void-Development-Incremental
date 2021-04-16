@@ -55,13 +55,16 @@ export default {
     },
     methods: {
         sendMessage() {
-            const { category, channel } = this.player.activeChannel;
-            addMessage(category, channel, {
-                content: this.message,
-                timestamp: Date.now(),
-                userId: 667109969438441486
-            });
-            this.message = "";
+            this.message = this.message.trim();
+            if (this.message !== '') {
+                const { category, channel } = this.player.activeChannel;
+                addMessage(category, channel, {
+                    content: this.message,
+                    timestamp: Date.now(),
+                    userId: 667109969438441486
+                });
+                this.message = '';
+            }
         }
     }
 }
