@@ -13,8 +13,4 @@ function Load() {
     else {
         player = JSON.parse(saveData)
     }
-}
-console.log(localStorage.getItem("VDI"))
-
-
 Load()
