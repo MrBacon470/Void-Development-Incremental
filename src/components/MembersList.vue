@@ -1,5 +1,5 @@
 <template>
-<div class="users-list">
+<div class="users-list" v-if="player.activeChannel.category !== 'DMs'">
     <div v-for="(role, roleID) in roles" :key="roleID">
         <div class="role-header">
             <p>{{ role.title }} &#8212; {{ Object.keys(usersByRole[roleID]).length }}</p>
