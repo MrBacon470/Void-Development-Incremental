@@ -52,7 +52,10 @@ let startData = {
 				general: {
 					title: 'General',
 					type: 'voice',
-					description: "Place where you can talk and listen to music!"
+					description: "Place where you can talk and listen to music!",
+					users: [
+						350057688182292482
+					]
 				}
 			}
 		}
@@ -61,6 +64,7 @@ let startData = {
 		category: 'info',
 		channel: 'welcome'
 	},
+	influence: 0,
 	autosave: true,
 	timePlayed: 0,
 	currentTime: performance.now()
