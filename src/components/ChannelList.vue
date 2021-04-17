@@ -1,5 +1,5 @@
 <template>
-<div class="channel-list">
+<div class="channel-list" v-if="player.activeChannel.category !== 'DMs'">
     <div class="channel-list-header">Void Development Incremental</div>
     <div class="channel-list-inner">
         <div v-for="(category, categoryID) in player.categories" :key="categoryID">
@@ -37,7 +37,7 @@
         </div>
         <div class="data">
             <p class="name">VoidCloud</p>
-            <p class="desc">0 <span class="influence">Influence</span></p>
+            <p class="desc">{{ player.influence | numberFormatWhole }} <span class="influence">Influence</span></p>
         </div>
         <button>
             <i class="fas fa-cog"></i>

@@ -4,6 +4,8 @@ import Decimal from './break_eternity.js';
 import { format, formatWhole, formatTime } from './numberFormatting.js';
 import { updateConversations } from './conversations.js';
 
+window.Decimal = Decimal;
+
 // Load data from localStorage
 const storageKey = 'VDI';
 let startData = {
@@ -60,14 +62,22 @@ let startData = {
 			}
 		}
 	},
-	activeChannel: {
-		category: 'info',
-		channel: 'welcome'
+	DMs: {
+		Bob: {
+			title: 'Bob',
+			type: 'DM',
+			messages: []
+		}
 	},
-	influence: 0,
+	activeChannel: {
+		category: 'DMs',
+		channel: 'Bob'
+	},
+	influence: new Decimal(0),
 	autosave: true,
 	timePlayed: 0,
-	currentTime: performance.now()
+	currentTime: performance.now(),
+	activeConvos: [ { convoId: "intro", users: [ 'Bob' ], nextMessage: 0, progress: 0 } ]
 }
 function fixData(data, startData) {
 	for (let dataKey in startData) {
@@ -77,9 +87,9 @@ function fixData(data, startData) {
 			}
 		} else if (Array.isArray(startData[dataKey])) {
 			if (data[dataKey] === undefined) {
-				data[dataKey] = startData[dataKey];
+				data[dataKey] = startData[dataKey].slice();
 			} else {
-				fixData(startData[dataKey], data[dataKey]);
+				fixData(data[dataKey], startData[dataKey]);
 			}
 		} else if (startData[dataKey] instanceof Decimal) { // Convert to Decimal
 			if (data[dataKey] == undefined) {
@@ -89,9 +99,9 @@ function fixData(data, startData) {
 			}
 		} else if ((!!startData[dataKey]) && (typeof startData[dataKey] === "object")) {
 			if (data[dataKey] == undefined || (typeof data[dataKey] !== "object")) {
-				data[dataKey] = startData[dataKey];
+				data[dataKey] = Object.assign({}, startData[dataKey]);
 			} else {
-				fixData(startData[dataKey], data[dataKey]);
+				fixData(data[dataKey], startData[dataKey]);
 			}
 		} else {
 			if (data[dataKey] == undefined) {
@@ -105,7 +115,7 @@ if (loadedData == null) {
 	loadedData = JSON.parse(JSON.stringify(startData));
 } else {
 	loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
-	fixData(loadedData, JSON.parse(JSON.stringify(startData)));
+	fixData(loadedData, startData);
 }
 let store = window.player = Vue.observable(loadedData);
 Vue.prototype.player = store;
@@ -113,6 +123,8 @@ Vue.prototype.player = store;
 // Hard reset function!
 window.hardReset = function() {
 	Object.assign(store, JSON.parse(JSON.stringify(startData)));
+	fixData(loadedData, startData);
+	store.currentTime = performance.now();
 }
 
 // Set up auto-saving every second

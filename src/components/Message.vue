@@ -1,10 +1,17 @@
 <template>
 <div :class="{ message: true, first: message.first }">
-    <img class="pfp" :src="userdata.profileImage" :alt="userdata.username">
-    <p class="name" :style="{ color: roleColor }">{{ userdata.username }}
-        <span class="timestamp">{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
+    <img class="pfp" v-if="profileImage" :src="profileImage" :alt="username">
+    <div class="pfp fa fa-user" v-else :style="{ backgroundColor: pickColor(message.userId) }"></div>
+    <p class="name" :style="{ color: roleColor }">{{ username }}
+        <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
+        <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
+        <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
     </p>
-    <p class="text">{{ message.content }}</p>
+    <p class="text">{{ message.content }}<span v-if="message.influence" :class="{
+        'change-influence': true,
+        gain: message.influence.gt(0),
+        loss: message.influence.lt(0)
+    }">{{ message.influence.abs() | numberFormatWhole }} influence</span></p>
 </div>
 </template>
 
@@ -13,17 +20,51 @@ import { userdata, roles } from '../userdata.js';
 
 export default {
 	name: 'message',
+    data() {
+        return {
+            dateFormat: new Intl.DateTimeFormat('en-US', { year: '2-digit', month: '2-digit', day: 'numeric' }),
+            timeFormat: new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric' })
+        }
+    },
     computed: {
-        userdata() {
-            return userdata[this.message.userId];
+        username() {
+            return this.message.userId in userdata ? userdata[this.message.userId].username : this.message.userId;
+        },
+        profileImage() {
+            return this.message.userId in userdata ? userdata[this.message.userId].profileImage : '';
         },
         roleColor() {
-            return roles[userdata[this.message.userId].role].color;
+            return this.message.userId in userdata ? roles[userdata[this.message.userId].role].color : 'white';
+        },
+        timestamp() {
+            return new Date(this.message.timestamp);
         }
     },
     props: [
         'message'
-    ]
+    ],
+    methods: {
+        pickColor(str) {
+            let hash = 0;
+              for (var i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+              }
+            return `hsl(${hash % 360}, 100%, 80%)`;
+        },
+        isToday(date) {
+            const today = new Date();
+            return date.getDate() === today.getDate() &&
+                   date.getMonth() === today.getMonth() &&
+                   date.getFullYear() === today.getFullYear()
+        },
+        isYesterday(date) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return date.getDate() === yesterday.getDate() &&
+                   date.getMonth() === yesterday.getMonth() &&
+                   date.getFullYear() === yesterday.getFullYear()
+        }
+    }
 }
 </script>
 
@@ -39,7 +80,7 @@ export default {
 .message.first {
     margin-top: 1em;
 }
-.message:nth-last-child(2) {
+.message:nth-last-child(3) {
     margin-bottom: 30px;
 }
 .message:hover {
@@ -47,10 +88,15 @@ export default {
 }
 .message .pfp {
     position: absolute;
-    left: 1em;
-    width: 2.5em;
-    height: 2.5em;
+    font-size: 2em;
+    left: .5em;
+    width: 1.25em;
+    height: 1.25em;
     border-radius: 1.25em;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
 }
 .message .name {
     line-height: 1.375em;
@@ -69,5 +115,16 @@ export default {
     font-weight: 300;
     user-select: text;
     word-break: break-all;
+}
+
+.change-influence {
+    margin-left: 1em;
+    font-size: .9em;
+}
+.change-influence.gain {
+    color: var(--color-influence);
+}
+.change-influence.loss {
+    color: var(--color-neg-influence);
 }
 </style>

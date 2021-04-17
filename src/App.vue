@@ -84,6 +84,7 @@ html {
     --background-secondary-modifier-selected: #393C43;
 
     --color-influence: #5B85AA;
+    --color-neg-influence: #F7BC9E;
 }
 
 body {
