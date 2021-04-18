@@ -272,25 +272,28 @@ const nothingConversations = [
 	'hi',
 	'hey'
 ].reduce((acc, curr, index) => {
-	acc['nothing' + index] = singleMessage(curr);
+	acc['nothing' + index] = typeof curr === 'string' ? singleMessage(curr) : curr;
 	return acc;
 }, {});
 
-const genericNounConversations = {
-	genericNoun1: {
+const genericNounConversations = [
+	{
 		messages: [
 			{ type: 'user', user: 0, content() { return `${this.noun}? I love ${this.noun}!` } },
 			{ type: 'user', user: 1, content() { return `Pssh, ${this.noun} is so overrated. Get something new to like` }, delay: 2 }
 		],
 		users: [ {}, {} ]
 	},
-	genericNoun2: {
+	{
 		messages: [
 			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${this.noun} but then I realized it's actually really easy to like` } }
 		],
 		users: [ {} ]
 	}
-}
+].reduce((acc, curr, index) => {
+	acc['genericNoun' + index] = curr;
+	return acc;
+}, {});
 
 const conversations = {
 	...nothingConversations,
