@@ -28,7 +28,7 @@ function startConversation(category, channel, convo, extra) {
 	// TODO cache this?
 	let conversingUsers = window.player.users.filter(user => {
 		// Prioritize hero users
-		if (typeof user === 'string') {
+		if (user in userdata) {
 			return false;
 		}
 		for (let c of window.player.activeConvos) {
@@ -39,14 +39,14 @@ function startConversation(category, channel, convo, extra) {
 		return true;
 	});
 
-	conversingUsers = [667109969438441486, ...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
+	conversingUsers = [...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
 	let users = conversations[convo].users.map(u => {
 		if (typeof u === 'object') {
-			let users = window.player.users.filter(u => !conversingUsers.includes(u));
+			let users = window.player.users.filter(u => u !== "667109969438441486" && !conversingUsers.includes(u));
 			// TODO apply filters based on options stored in object
 			// Might mean moving the hero user prioritization from the conversingUsers construction
 			if (users.length === 0) {
-				users = window.player.users.filter(u => u !== 667109969438441486 && !conversations[convo].users.includes(u));
+				users = window.player.users.filter(u => u !== "667109969438441486" && !conversations[convo].users.includes(u));
 			}
 			u = users[Math.floor(Math.random() * users.length)];
 		}
@@ -100,27 +100,31 @@ function updateConversations(delta) {
 	}
 
 	// Add new topics randomly, based on how many active conversations there already are
-	randomTopicProgress += delta / 30;
-	if (randomMod < randomTopicProgress / (1 + window.player.activeConvos.length)) {
-		randomTopicProgress = 0;
-		startConversation("general", "general", Object.keys(nothingConversations));
-		randomMod = Math.random();
+	if (window.player.activeChannel.category !== 'DMs' && window.player.activeChannel.channel !== 'Bob') {
+		randomTopicProgress += delta / 30;
+		if (randomMod < randomTopicProgress / (1 + window.player.activeConvos.length)) {
+			randomTopicProgress = 0;
+			startConversation("general", "general", Object.keys(nothingConversations));
+			randomMod = Math.random();
+		}
 	}
 }
 
 function addMessage(category, channel, message, sender) {
 	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
-	message.userId = sender || message.userId;
-	message.timestamp = message.timestamp || Date.now();
-	message.first = message.content && (messages.length === 0 ||
-					messages[messages.length - 1].userId !== message.userId ||
-					// separate messages if they're 7 minutes apart
-					message.timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000);
-	if (message.influence) {
-		message.influence = new Decimal(message.influence);
-		window.player.influence = window.player.influence.add(message.influence);
+	// Duplicate message and strip out unnecessary data
+	let { content, first, timestamp, userId, influence, joinMessage } = message;
+	userId = sender || userId;
+	timestamp = timestamp || Date.now();
+	first = content && (messages.length === 0 ||
+						messages[messages.length - 1].userId !== userId ||
+						// separate messages if they're 7 minutes apart
+						timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000);
+	if (influence) {
+		influence = new Decimal(influence);
+		window.player.influence = window.player.influence.add(influence);
 	}
-	messages.push(message);
+	messages.push({ content, first, timestamp, userId, influence, joinMessage });
 }
 
 // Utility function for creating a single-message conversation
