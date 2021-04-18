@@ -80,9 +80,6 @@ export default {
 .message.first {
     margin-top: 1em;
 }
-.message:nth-last-child(3) {
-    margin-bottom: 30px;
-}
 .message:hover {
     background-color: var(--background-message-hover);
 }
