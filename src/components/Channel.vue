@@ -17,6 +17,7 @@
         <perfect-scrollbar ref="scroll">
             <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
         </perfect-scrollbar>
+        <welcome v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'welcome'" />
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
             <input class="messages-input" v-model="message" :placeholder="'Message ' + (channel.type === 'text' ? '#' : '@') + channel.title" ref="input" v-if="channel.type !== 'voice'"/>
         </form>
@@ -35,13 +36,14 @@
 
 <script>
 import Message from './Message.vue';
+import Welcome from './Welcome.vue';
 import { sendPlayerMessage, conversations } from '../conversations.js';
 import { userdata } from '../userdata.js';
 
 export default {
 	name: 'channel',
 	components: {
-		Message
+		Message, Welcome
 	},
     data() {
         return {
@@ -100,6 +102,9 @@ export default {
                     userId: 667109969438441486
                 });
                 this.message = '';
+                this.$nextTick(() => {
+                    this.$refs.scroll.$el.scrollTop = this.$refs.scroll.$el.scrollHeight;
+                });
             }
         }
     }
@@ -280,25 +285,17 @@ export default {
     padding-bottom: 30px;
 }
 
-.messages .ps--active-y > .ps__rail-y {
-    background-color: var(--scrollbar-auto-track);
-    width: .5em;
-    margin-right: .25em;
+.channel-actions {
+    padding: 1em;
+    margin: 0 1em;
+    margin-bottom: .5em;
+    display: flex;
+    flex-shrink: 0;
+    background: var(--background-secondary);
+    border-radius: .5em;
 }
 
-.messages .ps .ps__rail-y:hover,
-.messages .ps .ps__rail-y.ps--clicking {
-    background-color: var(--scrollbar-auto-track);
-    width: 1em;
-}
-
-.messages .ps__thumb-y {
-    background-color: var(--scrollbar-auto-thumb);
-}
-
-.messages .ps__rail-y:hover > .ps__thumb-y,
-.messages .ps__rail-y.ps--clicking > .ps__thumb-y {
-    background-color: var(--scrollbar-auto-thumb);
-    width: calc(1em - 4px);
+.channel-actions .h-fill {
+    flex-grow: 1;
 }
 </style>

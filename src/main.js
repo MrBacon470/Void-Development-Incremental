@@ -2,7 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import Decimal from './break_eternity.js';
 import { format, formatWhole, formatTime } from './numberFormatting.js';
-import { updateConversations } from './conversations.js';
+import { updateConversations, welcomeMessages } from './conversations.js';
 import PerfectScrollbar from 'vue2-perfect-scrollbar';
 import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css"
 
@@ -26,12 +26,12 @@ let startData = {
 					title: 'welcome',
 					type: 'text',
 					messages: [
-					{
-						timestamp: Date.now(),
-						content: "Testerest",
-						userId: 350057688182292482,
-						first: true
-					}],
+						{
+							timestamp: Date.now(),
+							joinMessage: welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]('Bob'),
+							userId: 'Bob'
+						}
+					],
 					description: ":blobwave:"
 				},
 			}
@@ -148,6 +148,8 @@ window.hardReset = function() {
 	Object.assign(store, JSON.parse(JSON.stringify(startData)));
 	fixData(loadedData, startData);
 	store.currentTime = performance.now();
+	store.performedIntro = true;
+	store.activeConvos.push({ convoId: "intro", users: [ 'Bob' ], category: 'DMs', channel: 'Bob', nextMessage: 0, progress: 0 });
 }
 
 // Set up auto-saving every second

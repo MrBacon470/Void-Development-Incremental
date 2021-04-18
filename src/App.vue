@@ -85,6 +85,8 @@ html {
 
     --color-influence: #5B85AA;
     --color-neg-influence: #F7BC9E;
+
+    --color-default-pfp: rgba(79,84,92,0.75);
 }
 
 body {
@@ -107,9 +109,45 @@ strong {
     font-weight: 500;
 }
 
+button {
+    outline: none;
+    background: transparent;
+    border: none;
+    color: var(--interactive-normal);
+    cursor: pointer;
+}
+button:hover {
+    color: var(--interactive-hover);
+}
+button:active {
+    color: var(--interactive-active);
+}
+button:disabled {
+    color: var(--interactive-muted);
+}
+
 .app {
     display: grid;
     grid-template-columns: 15em 3fr 15em;
     min-height: 100vh;
+}
+
+.app .ps--active-y > .ps__rail-y {
+    background-color: var(--scrollbar-auto-track);
+    width: .5em;
+    margin-right: .25em;
+}
+.app .ps .ps__rail-y:hover,
+.app .ps .ps__rail-y.ps--clicking {
+    background-color: var(--scrollbar-auto-track);
+    width: 1em;
+}
+.app .ps__thumb-y {
+    background-color: var(--scrollbar-auto-thumb);
+}
+.app .ps__rail-y:hover > .ps__thumb-y,
+.app .ps__rail-y.ps--clicking > .ps__thumb-y {
+    background-color: var(--scrollbar-auto-thumb);
+    width: calc(1em - 4px);
 }
 </style>

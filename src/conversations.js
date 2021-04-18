@@ -1,6 +1,7 @@
 import { SentimentIntensityAnalyzer } from 'vader-sentiment';
 import nlp from 'compromise';
 import Decimal from './break_eternity.js';
+import { userdata } from './userdata.js';
 
 function startConversation(category, channel, convo, extra) {
 	// If convo is an array, choose a random one
@@ -26,14 +27,11 @@ function startConversation(category, channel, convo, extra) {
 	// Pick users for conversation
 	// TODO cache this?
 	let conversingUsers = window.player.users.filter(user => {
-		if (user === 667109969438441486) {
-			return true;
-		}
 		// Prioritize hero users
 		if (typeof user === 'string') {
 			return false;
 		}
-		for (let c in window.player.activeConvos) {
+		for (let c of window.player.activeConvos) {
 			if (c.users.includes(user)) {
 				return false;
 			}
@@ -41,7 +39,7 @@ function startConversation(category, channel, convo, extra) {
 		return true;
 	});
 
-	conversingUsers = [...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
+	conversingUsers = [667109969438441486, ...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
 	let users = conversations[convo].users.map(u => {
 		if (typeof u === 'object') {
 			let users = window.player.users.filter(u => !conversingUsers.includes(u));
@@ -49,10 +47,6 @@ function startConversation(category, channel, convo, extra) {
 			// Might mean moving the hero user prioritization from the conversingUsers construction
 			if (users.length === 0) {
 				users = window.player.users.filter(u => u !== 667109969438441486 && !conversations[convo].users.includes(u));
-			}
-			if (users.length === 0) {
-				console.log("Too many users required for conversation! Try re-ordering users list.", convo);
-				users = window.player.users.filter(u => u !== 667109969438441486);
 			}
 			u = users[Math.floor(Math.random() * users.length)];
 		}
@@ -68,7 +62,7 @@ function getWeight(convoId) {
 	const convo = conversations[convoId];
 	let weight = convo.weight;
 	if (typeof weight === 'function') {
-		weight = weight();
+		weight = weight.call(convo);
 	}
 	return Math.max(weight == null ? 1 : weight, 0);
 }
@@ -83,13 +77,13 @@ function updateConversations(delta) {
 
 		if (nextMessage.type === 'user') {
 			activeConvo.progress += delta;
+			if (typeof nextMessage.content === 'function') {
+				convo.messages[activeConvo.nextMessage] = nextMessage = Object.assign({}, nextMessage);
+				nextMessage.content = nextMessage.content.call(activeConvo);
+			}
 
 			if (activeConvo.progress >= (nextMessage.delay || 1) + (nextMessage.typingDuration || (nextMessage.content.length * .05))) {
 				// Time to show next message
-				nextMessage = Object.assign({}, nextMessage);
-				if (typeof nextMessage.content === 'function') {
-					nextMessage.content = nextMessage.content.call(activeConvo);
-				}
 				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[nextMessage.user]);
 				activeConvo.progress = 0;
 				activeConvo.nextMessage = nextMessage.goto != null ? nextMessage.goto : activeConvo.nextMessage + 1;
@@ -118,10 +112,10 @@ function addMessage(category, channel, message, sender) {
 	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
 	message.userId = sender || message.userId;
 	message.timestamp = message.timestamp || Date.now();
-	message.first = messages.length === 0 ||
+	message.first = message.content && (messages.length === 0 ||
 					messages[messages.length - 1].userId !== message.userId ||
 					// separate messages if they're 7 minutes apart
-					message.timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000;
+					message.timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000);
 	if (message.influence) {
 		message.influence = new Decimal(message.influence);
 		window.player.influence = window.player.influence.add(message.influence);
@@ -155,6 +149,13 @@ function handleResponse(convo, message, response) {
 	}
 	// Returns true if this should be removed from the list of activeConvos
 	return convo.nextMessage >= conversations[convo.convoId].messages.length;
+}
+
+function addJoinMessage(newUser) {
+	addMessage('info', 'welcome', {
+        joinMessage: welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)](newUser in userdata ? userdata[newUser].username : newUser),
+        userId: newUser
+    });
 }
 
 function sendPlayerMessage(message) {
@@ -291,7 +292,13 @@ const genericNounConversations = [
 		users: [ {} ]
 	}
 ].reduce((acc, curr, index) => {
-	acc['genericNoun' + index] = curr;
+	acc['genericNoun' + index] = {
+		...curr,
+		weight() {
+			// Subtract 1 user because Void isn't a valid user
+			return this.users.length > window.player.users.length - 1 ? 0 : curr.weight || 1;
+		}
+	};
 	return acc;
 }, {});
 
@@ -314,4 +321,47 @@ const conversations = {
 	}
 }
 
-export { startConversation, updateConversations, sendPlayerMessage, conversations };
+const welcomeMessages = [
+	// Extended list from https://gist.github.com/fourjr/0f47ce8a000c29cd4e24f8aeb7edd8e0
+	"[!!{username}!!](usernameOnClick) just joined the server - glhf!",
+	"[!!{username}!!](usernameOnClick) just joined. Everyone, look busy!",
+	"[!!{username}!!](usernameOnClick) just joined. Can I get a heal?",
+	"[!!{username}!!](usernameOnClick) joined your party.",
+	"[!!{username}!!](usernameOnClick) joined. You must construct additional pylons.",
+	"Ermagherd. [!!{username}!!](usernameOnClick) is here.",
+	"Welcome, [!!{username}!!](usernameOnClick). Stay awhile and listen.",
+	"Welcome, [!!{username}!!](usernameOnClick). We were expecting you ( ͡° ͜ʖ ͡°)",
+	"Welcome, [!!{username}!!](usernameOnClick). We hope you brought pizza.",
+	"Welcome [!!{username}!!](usernameOnClick). Leave your weapons by the door.",
+	"A wild [!!{username}!!](usernameOnClick) appeared.",
+	"Swoooosh. [!!{username}!!](usernameOnClick) just landed.",
+	"Brace yourselves. [!!{username}!!](usernameOnClick) just joined the server.",
+	"[!!{username}!!](usernameOnClick) just joined. Hide your bananas.",
+	"[!!{username}!!](usernameOnClick) just arrived. Seems OP - please nerf.",
+	"[!!{username}!!](usernameOnClick) just slid into the server.",
+	"A [!!{username}!!](usernameOnClick) has spawned in the server.",
+	"Big [!!{username}!!](usernameOnClick) showed up!",
+	"Where’s [!!{username}!!](usernameOnClick)? In the server!",
+	"[!!{username}!!](usernameOnClick) hopped into the server. Kangaroo!!",
+	"[!!{username}!!](usernameOnClick) just showed up. Hold my beer.",
+	"Challenger approaching - [!!{username}!!](usernameOnClick) has appeared!",
+	"It's a bird! It's a plane! Nevermind, it's just [!!{username}!!](usernameOnClick).",
+	"It's [!!{username}!!](usernameOnClick)! Praise the sun! \\[T]/",
+	"Never gonna give [!!{username}!!](usernameOnClick) up. Never gonna let [!!{username}!!](usernameOnClick) down.",
+	"Ha! [!!{username}!!](usernameOnClick) has joined! You activated my trap card!",
+	"Cheers, love! [!!{username}!!](usernameOnClick)'s here!",
+	"Hey! Listen! [!!{username}!!](usernameOnClick) has joined!",
+	"We've been expecting you [!!{username}!!](usernameOnClick)",
+	"It's dangerous to go alone, take [!!{username}!!](usernameOnClick)!",
+	"[!!{username}!!](usernameOnClick) has joined the server! It's super effective!",
+	"Cheers, love! [!!{username}!!](usernameOnClick) is here!",
+	"[!!{username}!!](usernameOnClick) is here, as the prophecy foretold.",
+	"[!!{username}!!](usernameOnClick) has arrived. Party's over.",
+	"Ready player [!!{username}!!](usernameOnClick)",
+	"[!!{username}!!](usernameOnClick) is here to kick butt and chew bubblegum. And [!!{username}!!](usernameOnClick) is all out of gum.",
+	"Hello. Is it [!!{username}!!](usernameOnClick) you're looking for?",
+	"[!!{username}!!](usernameOnClick) has joined. Stay a while and listen!",
+	"Roses are red, violets are blue, [!!{username}!!](usernameOnClick) joined this server with you",
+].map(message => id => message.replaceAll('[!!{username}!!](usernameOnClick)', `<b>${id in userdata ? userdata[id].username : id}</b>`));
+
+export { startConversation, updateConversations, sendPlayerMessage, conversations, welcomeMessages, addJoinMessage };

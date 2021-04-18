@@ -7,11 +7,18 @@
         <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
         <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
     </p>
-    <p class="text">{{ message.content }}<span v-if="message.influence" :class="{
+    <p class="text" v-if="message.content">{{ message.content }}<span v-if="message.influence" :class="{
         'change-influence': true,
         gain: message.influence.gt(0),
         loss: message.influence.lt(0)
     }">{{ message.influence.abs() | numberFormatWhole }} influence</span></p>
+    <p class="text welcome" v-else-if="message.joinMessage">
+        <i class="fa fa-arrow-right" />
+        <span v-html="message.joinMessage"></span>
+        <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
+        <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
+        <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
+    </p>
 </div>
 </template>
 
@@ -94,6 +101,7 @@ export default {
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    color: var(--color-default-pfp);
 }
 .message .name {
     line-height: 1.375em;
@@ -106,6 +114,7 @@ export default {
     font-size: 0.75em;
     margin-left: 0.5em;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 .text {
     line-height: 1.375em;
@@ -123,5 +132,17 @@ export default {
 }
 .change-influence.loss {
     color: var(--color-neg-influence);
+}
+
+.welcome {
+    position: relative;
+}
+
+.welcome i {
+    color: green;
+    position: absolute;
+    left: -2.5em;
+    top: 50%;
+    transform: translateY(-50%);
 }
 </style>
