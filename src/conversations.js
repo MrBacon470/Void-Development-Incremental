@@ -1,7 +1,8 @@
 import { SentimentIntensityAnalyzer } from 'vader-sentiment';
+import nlp from 'compromise';
 import Decimal from './break_eternity.js';
 
-function startConversation(category, channel, convo) {
+function startConversation(category, channel, convo, extra) {
 	// If convo is an array, choose a random one
 	if (Array.isArray(convo)) {
 		let weights = convo.map(c => ({ convo: c, weight: getWeight(c) })).filter(c => c.weight !== 0);
@@ -47,7 +48,7 @@ function startConversation(category, channel, convo) {
 			// TODO apply filters based on options stored in object
 			// Might mean moving the hero user prioritization from the conversingUsers construction
 			if (users.length === 0) {
-				users = window.player.users.filter(u => console.log(u) || u !== 667109969438441486 && !convo.users.includes(u));
+				users = window.player.users.filter(u => u !== 667109969438441486 && !conversations[convo].users.includes(u));
 			}
 			if (users.length === 0) {
 				console.log("Too many users required for conversation! Try re-ordering users list.", convo);
@@ -60,7 +61,7 @@ function startConversation(category, channel, convo) {
 	});
 
 	// Add to list of active conversations
-	window.player.activeConvos.push({ convoId: convo, users, category, channel, nextMessage: 0, progress: 0 })
+	window.player.activeConvos.push({ convoId: convo, users, category, channel, nextMessage: 0, progress: 0, ...extra })
 }
 
 function getWeight(convoId) {
@@ -78,13 +79,17 @@ function updateConversations(delta) {
 	for (let index = window.player.activeConvos.length - 1; index >= 0; index--) {
 		let activeConvo = window.player.activeConvos[index];
 		const convo = conversations[activeConvo.convoId];
-		const nextMessage = convo.messages[activeConvo.nextMessage];
+		let nextMessage = convo.messages[activeConvo.nextMessage];
 
 		if (nextMessage.type === 'user') {
 			activeConvo.progress += delta;
 
 			if (activeConvo.progress >= (nextMessage.delay || 1) + (nextMessage.typingDuration || (nextMessage.content.length * .05))) {
 				// Time to show next message
+				nextMessage = Object.assign({}, nextMessage);
+				if (typeof nextMessage.content === 'function') {
+					nextMessage.content = nextMessage.content.call(activeConvo);
+				}
 				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[nextMessage.user]);
 				activeConvo.progress = 0;
 				activeConvo.nextMessage = nextMessage.goto != null ? nextMessage.goto : activeConvo.nextMessage + 1;
@@ -153,10 +158,13 @@ function handleResponse(convo, message, response) {
 }
 
 function sendPlayerMessage(message) {
+	const { category, channel } = window.player.activeChannel;
+
 	// TODO using mentions to "target" responses at specific convos?
 	let foundConvo = false;
 	window.player.activeConvos.forEach((c, index) => {
 		if (foundConvo) return;
+		if (c.category !== category || c.channel !== channel) return;
 		const nextMessage = conversations[c.convoId].messages[c.nextMessage];
 		if (nextMessage.type === 'player') {
 			if (nextMessage.nlpType === 'sentiment') {
@@ -191,13 +199,37 @@ function sendPlayerMessage(message) {
 	if (!foundConvo && Math.random() < (1 / (window.player.activeConvos.length + 1))) {
 		// TODO parse message for specific topics
 		// TODO if topic is mentioned but not handled uniquely, add generic "are we talking about <topic>? I might have to mute then" or smt
-		// TODO if no topic is mentioned but a noun is, add generic "<noun>? I love <noun>!" or smt
-		console.log("No conversation found for " + message.content);
+		const nouns = nlp(message.content, customWords).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent().nouns().not('#Plural').out('array');
+		if (nouns.length > 0) {
+			startConversation(category, channel, Object.keys(genericNounConversations), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
+		} else {
+			console.log("No conversation found for " + message.content);
+		}
 	}
 
-	const { category, channel } = window.player.activeChannel;
 	addMessage(category, channel, message);
 }
+
+// Setup NLP
+window.nlp = nlp;
+// Create list of custom words to include as topics, nouncs, etc.
+// See list of tags here: https://observablehq.com/@spencermountain/compromise-tags
+// Note that topic are any Person, Place, or Organization (or children within those)
+const customWords = {
+	discord: 'Company',
+	minecraft: 'Noun',
+	mojang: 'Company',
+	unity: 'Noun',
+	photoshop: 'Noun',
+	'id software': 'Company',
+	'square enix': 'Company',
+	'unreal engine': 'Noun',
+	'ue4': 'Noun',
+	nintendo: 'Company',
+	'dungeons and dragons': 'Noun',
+	'd&d': 'Noun'
+}
+window.customWords = customWords;
 
 // Random messages to send that might stir up a conversation
 // Right now that might happen only if the player responds
@@ -244,8 +276,25 @@ const nothingConversations = [
 	return acc;
 }, {});
 
+const genericNounConversations = {
+	genericNoun1: {
+		messages: [
+			{ type: 'user', user: 0, content() { return `${this.noun}? I love ${this.noun}!` } },
+			{ type: 'user', user: 1, content() { return `Pssh, ${this.noun} is so overrated. Get something new to like` }, delay: 2 }
+		],
+		users: [ {}, {} ]
+	},
+	genericNoun2: {
+		messages: [
+			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${this.noun} but then I realized it's actually really easy to like` } }
+		],
+		users: [ {} ]
+	}
+}
+
 const conversations = {
 	...nothingConversations,
+	...genericNounConversations,
 	intro: {
 		messages: [
 			{ type: 'user', user: 0, content: 'Hey void, create discord server rq or else :ban:', delay: 0 },
