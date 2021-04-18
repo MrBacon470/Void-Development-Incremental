@@ -82,7 +82,7 @@ let startData = {
 	activeConvos: [],
 	performedIntro: false,
 	users: [
-		667109969438441486,
+		"667109969438441486",
 		"Bob"
 	]
 }
@@ -181,6 +181,7 @@ window.vue = new Vue({
 function update(currTime) {
 	// TODO offline time doesn't work if using performance.now()
 	const delta = Math.max(0, (currTime - store.currentTime) / 1000);
+	store.timePlayed += delta;
 
 	updateConversations(delta);
 

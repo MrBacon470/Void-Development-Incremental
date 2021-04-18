@@ -99,7 +99,7 @@ export default {
             if (this.message !== '') {
                 sendPlayerMessage({
                     content: this.message,
-                    userId: 667109969438441486
+                    userId: "667109969438441486"
                 });
                 this.message = '';
                 this.$nextTick(() => {
@@ -282,7 +282,7 @@ export default {
 }
 
 .messages .ps {
-    padding-bottom: 30px;
+    padding: 30px 0;
 }
 
 .channel-actions {
