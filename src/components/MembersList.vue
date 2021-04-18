@@ -1,37 +1,39 @@
 <template>
 <div class="users-list" v-if="player.activeChannel.category !== 'DMs'">
-    <div v-for="(role, roleID) in usersByRole" :key="roleID">
-        <div class="role-header">
-            <p>{{ roles[roleID].title }} &#8212; {{ Object.keys(role).length }}</p>
+    <perfect-scrollbar>
+        <div v-for="(role, roleID) in usersByRole" :key="roleID">
+            <div class="role-header">
+                <p>{{ roles[roleID].title }} &#8212; {{ Object.keys(role).length }}</p>
+            </div>
+            <div v-for="(user, userID) in role" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+                <div class="user-inner">
+                    <div class="avatar">
+                        <img class="pfp" :src="user.profileImage" :alt="user.username">
+                        <div class="status"></div>
+                    </div>
+                    <div class="user-text">
+                        <p class="name" :style="{ color: roles[roleID].color }">{{ user.username }}</p>
+                        <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
+                        <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div v-for="(user, userID) in role" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+        <div class="role-header">
+            <p>MEMBERS &#8212; {{ members.length }}</p>
+        </div>
+        <div v-for="user in members" :key="user" status="Online" class="user" v-on:click="openProfile(user)">
             <div class="user-inner">
                 <div class="avatar">
-                    <img class="pfp" :src="user.profileImage" :alt="user.username">
+                    <div class="pfp fa fa-user" :style="{ backgroundColor: pickColor(user) }"></div>
                     <div class="status"></div>
                 </div>
                 <div class="user-text">
-                    <p class="name" :style="{ color: roles[roleID].color }">{{ user.username }}</p>
-                    <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
-                    <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                    <p class="name">{{ user }}</p>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="role-header">
-        <p>MEMBERS &#8212; {{ members.length }}</p>
-    </div>
-    <div v-for="user in members" :key="user" status="Online" class="user" v-on:click="openProfile(user)">
-        <div class="user-inner">
-            <div class="avatar">
-                <div class="pfp fa fa-user" :style="{ backgroundColor: pickColor(user) }"></div>
-                <div class="status"></div>
-            </div>
-            <div class="user-text">
-                <p class="name">{{ user }}</p>
-            </div>
-        </div>
-    </div>
+    </perfect-scrollbar>
 </div>
 </template>
 
@@ -80,8 +82,8 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-
     background-color: var(--background-secondary);
+    height: 100vh;
 }
 
 .role-header {
@@ -149,6 +151,7 @@ export default {
     align-items: flex-end;
     justify-content: center;
     font-size: 1.75em;
+    color: var(--color-default-pfp);
 }
 
 .user-inner > .avatar > .status {
