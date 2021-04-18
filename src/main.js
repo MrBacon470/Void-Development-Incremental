@@ -79,7 +79,8 @@ let startData = {
 	autosave: true,
 	timePlayed: 0,
 	currentTime: performance.now(),
-	activeConvos: [ { convoId: "intro", users: [ 'Bob' ], category: 'DMs', channel: 'Bob', nextMessage: 0, progress: 0 } ],
+	activeConvos: [],
+	performedIntro: false,
 	users: [
 		667109969438441486,
 		"Bob"
@@ -122,9 +123,25 @@ if (loadedData == null) {
 } else {
 	loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
 	fixData(loadedData, startData);
+	// Update influence values on messages to Decimals
+	for (let category in loadedData.categories) {
+		for (let channel in loadedData.categories[category].channels) {
+			for (let message of loadedData.categories[category].channels[channel].messages || []) {
+				if (message.influence) {
+					message.influence = new Decimal(message.influence);
+				}
+			}
+		}
+	}
 }
 let store = window.player = Vue.observable(loadedData);
 Vue.prototype.player = store;
+
+// Setup first conversation
+if (!store.performedIntro) {
+	store.performedIntro = true;
+	store.activeConvos.push({ convoId: "intro", users: [ 'Bob' ], category: 'DMs', channel: 'Bob', nextMessage: 0, progress: 0 });
+}
 
 // Hard reset function!
 window.hardReset = function() {
