@@ -65,9 +65,9 @@ export const userdata = {
 };
 
 export const roles = {
-    'developer': { title: 'Developer', color: 'rgb(184, 105, 255)' },
-    'staff-admin': { title: 'Staff-Admin', color: 'rgb(255, 59, 125)' },
-    'staff-helper': { title: 'Staff-Helper', color: 'rgb(127, 245, 206)'},
-    'contributor': {title: 'Contributor', color: 'rgb(131, 126, 252)'},
-    'kuaka-salesman': { title: 'Kuaka Salesman', color: 'rgb(189, 17, 255)' },
+    'developer': { title: 'DEVELOPER', color: 'rgb(184, 105, 255)' },
+    'staff-admin': { title: 'STAFF-ADMIN', color: 'rgb(255, 59, 125)' },
+    'staff-helper': { title: 'STAFF-HELPER', color: 'rgb(127, 245, 206)'},
+    'contributor': {title: 'CONTRIBUTOR', color: 'rgb(131, 126, 252)'},
+    'kuaka-salesman': { title: 'KUAKA SALESMAN', color: 'rgb(189, 17, 255)' },
 }

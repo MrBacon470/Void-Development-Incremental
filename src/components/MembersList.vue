@@ -1,20 +1,34 @@
 <template>
 <div class="users-list" v-if="player.activeChannel.category !== 'DMs'">
-    <div v-for="(role, roleID) in roles" :key="roleID">
+    <div v-for="(role, roleID) in usersByRole" :key="roleID">
         <div class="role-header">
-            <p>{{ role.title }} &#8212; {{ Object.keys(usersByRole[roleID]).length }}</p>
+            <p>{{ roles[roleID].title }} &#8212; {{ Object.keys(role).length }}</p>
         </div>
-        <div v-for="(user, userID) in usersByRole[roleID]" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+        <div v-for="(user, userID) in role" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
             <div class="user-inner">
                 <div class="avatar">
                     <img class="pfp" :src="user.profileImage" :alt="user.username">
                     <div class="status"></div>
                 </div>
                 <div class="user-text">
-                    <p class="name" :style="{ color: role.color }">{{ user.username }}</p>
+                    <p class="name" :style="{ color: roles[roleID].color }">{{ user.username }}</p>
                     <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
                     <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="role-header">
+        <p>MEMBERS &#8212; {{ members.length }}</p>
+    </div>
+    <div v-for="user in members" :key="user" status="Online" class="user" v-on:click="openProfile(user)">
+        <div class="user-inner">
+            <div class="avatar">
+                <div class="pfp fa fa-user" :style="{ backgroundColor: pickColor(user) }"></div>
+                <div class="status"></div>
+            </div>
+            <div class="user-text">
+                <p class="name">{{ user }}</p>
             </div>
         </div>
     </div>
@@ -31,19 +45,31 @@ export default {
     },
     computed: {
         usersByRole() {
-            const users = Object.keys(userdata);
             return Object.keys(roles).reduce((acc, curr) => {
-                acc[curr] = users.filter(user => userdata[user].role === curr).reduce((acc, curr) => {
-                    acc[curr] = userdata[curr];
-                    return acc;
-                }, {});
+                const users = this.player.users.filter(user => user in userdata && userdata[user].role === curr);
+                if (users.length > 0) {
+                    acc[curr] = users.reduce((acc, curr) => {
+                        acc[curr] = userdata[curr];
+                        return acc;
+                    }, {});
+                }
                 return acc;
             }, {});
+        },
+        members() {
+            return this.player.users.filter(user => !(user in userdata));
         }
     },
     methods: {
         openProfile(/*userID*/) {
 
+        },
+        pickColor(str) {
+            let hash = 0;
+              for (var i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+              }
+            return `hsl(${hash % 360}, 100%, 80%)`;
         }
     }
 }
@@ -115,8 +141,14 @@ export default {
 
 .user-inner > .avatar > .pfp {
     height: 100%;
+    width: calc(var(--avatar-size) / 1.75);
     border-radius: 50%;
-    margin-right: 0.5em;
+    margin-right: 0.285em;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 1.75em;
 }
 
 .user-inner > .avatar > .status {

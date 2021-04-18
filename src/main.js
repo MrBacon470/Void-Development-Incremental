@@ -3,6 +3,8 @@ import App from './App.vue';
 import Decimal from './break_eternity.js';
 import { format, formatWhole, formatTime } from './numberFormatting.js';
 import { updateConversations } from './conversations.js';
+import PerfectScrollbar from 'vue2-perfect-scrollbar';
+import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css"
 
 window.Decimal = Decimal;
 
@@ -77,7 +79,11 @@ let startData = {
 	autosave: true,
 	timePlayed: 0,
 	currentTime: performance.now(),
-	activeConvos: [ { convoId: "intro", users: [ 'Bob' ], nextMessage: 0, progress: 0 } ]
+	activeConvos: [ { convoId: "intro", users: [ 'Bob' ], category: 'DMs', channel: 'Bob', nextMessage: 0, progress: 0 } ],
+	users: [
+		667109969438441486,
+		"Bob"
+	]
 }
 function fixData(data, startData) {
 	for (let dataKey in startData) {
@@ -145,6 +151,7 @@ Vue.filter('numberFormatWhole', function (value) {
 Vue.filter('timeFormat', function (value) {
 	return formatTime(value);
 });
+Vue.use(PerfectScrollbar);
 
 // Start Vue
 window.vue = new Vue({
@@ -154,7 +161,7 @@ window.vue = new Vue({
 // Setup game loop
 function update(currTime) {
 	// TODO offline time doesn't work if using performance.now()
-	const delta = (currTime - store.currentTime) / 1000;
+	const delta = Math.max(0, (currTime - store.currentTime) / 1000);
 
 	updateConversations(delta);
 

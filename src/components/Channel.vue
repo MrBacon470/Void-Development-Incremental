@@ -14,7 +14,9 @@
     </div>
     <div class="messages" v-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
-        <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
+        <perfect-scrollbar ref="scroll">
+            <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
+        </perfect-scrollbar>
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
             <input class="messages-input" v-model="message" :placeholder="'Message ' + (channel.type === 'text' ? '#' : '@') + channel.title" ref="input" v-if="channel.type !== 'voice'"/>
         </form>
@@ -48,12 +50,25 @@ export default {
     },
     mounted() {
         this.$refs.input.focus();
+        this.$refs.scroll.$el.scrollTop = this.$refs.scroll.$el.scrollHeight;
     },
     watch: {
-        channel: function() {
-            if (this.type === 'text') {
-                this.$nextTick(() => this.$refs.input.focus());
-            }
+        channel: {
+            handler(newVal, oldVal) {
+                const scroll = this.$refs.scroll.$el;
+                if (newVal !== oldVal && this.channel.type === 'text') {
+                    this.$nextTick(() => {
+                        this.$refs.input.focus();
+                        scroll.scrollTop = scroll.scrollHeight;
+                    });
+                }
+                if (newVal === oldVal && scroll.scrollTop + scroll.offsetHeight === scroll.scrollHeight) {
+                    this.$nextTick(() => {
+                        scroll.scrollTop = scroll.scrollHeight;
+                    });
+                }
+            },
+            deep: true
         }
     },
     computed: {
@@ -64,13 +79,9 @@ export default {
         typing() {
             const { category, channel } = this.player.activeChannel;
             return this.player.activeConvos
+                .filter(c => c.category === category && c.channel === channel)
                 .filter(c => {
-                    const convo = conversations[c.convoId];
-                    if (convo.category !== category && convo.channel !== channel) {
-                        return false;
-                    }
-
-                    const nextMessage = convo.messages[c.nextMessage];
+                    const nextMessage = conversations[c.convoId].messages[c.nextMessage];
                     return nextMessage.type === 'user' && (nextMessage.delay || 1) < c.progress;
                 })
                 .map(c => {
@@ -154,12 +165,12 @@ export default {
 .messages {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 3em);
+    height: calc(100vh - 3em);
+    position: relative;
 }
 
 .messages-fill {
     flex-grow: 1;
-    padding-bottom: 1em;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -263,5 +274,31 @@ export default {
         opacity: 0.5;
         transform: scale(.5);
     }
+}
+
+.messages .ps {
+    padding-bottom: 30px;
+}
+
+.messages .ps--active-y > .ps__rail-y {
+    background-color: var(--scrollbar-auto-track);
+    width: .5em;
+    margin-right: .25em;
+}
+
+.messages .ps .ps__rail-y:hover,
+.messages .ps .ps__rail-y.ps--clicking {
+    background-color: var(--scrollbar-auto-track);
+    width: 1em;
+}
+
+.messages .ps__thumb-y {
+    background-color: var(--scrollbar-auto-thumb);
+}
+
+.messages .ps__rail-y:hover > .ps__thumb-y,
+.messages .ps__rail-y.ps--clicking > .ps__thumb-y {
+    background-color: var(--scrollbar-auto-thumb);
+    width: calc(1em - 4px);
 }
 </style>
