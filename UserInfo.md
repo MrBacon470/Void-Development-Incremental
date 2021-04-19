@@ -22,5 +22,5 @@ Use a bot like Carl Bot's ?avatar command to obtain the profile picture link
 ```js
     'rolename': { title: 'ROLE NAME', color: 'rgb(r, g, b)' }
 ```
-## Colors are on the rgb wheel so each input is out of 255 ex: `rgb(189, 17, 255)`
+## Colors are any CSS color value ex:`rgb(r,g,b) hsl(50%,50%,50%), #FF0000, #F00`
 
