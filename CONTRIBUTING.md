@@ -7,4 +7,4 @@
 # Extra Info
 
 ## You can test your copy of the project using the command `npm run serve` and then click on the LocalHost link it gives you in the terminal<br>
-## Documentation is coming Soon<sup>tm</sup>
+## [Documentation](https://github.com/MrBacon470/Void-Development-Incremental/blob/docs/TOC.md)
