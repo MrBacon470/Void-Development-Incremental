@@ -6,5 +6,5 @@
 ## #5 Make Pull Requests with your changes make sure that there are no conflicts in your PR or it won't be merged <br>
 # Extra Info
 
-##You can test your copy of the project using the command `npm run serve` and then click on the LocalHost link it gives you in the terminal<br>
-##Documentation is coming Soon<sup>tm</sup>
+## You can test your copy of the project using the command `npm run serve` and then click on the LocalHost link it gives you in the terminal<br>
+## Documentation is coming Soon<sup>tm</sup>
