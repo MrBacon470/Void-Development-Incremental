@@ -14,11 +14,11 @@ export const userdata = {
         playing: "Void Development Incremental"
     },
     "708748287909298318": {
-        profileImage: "https://cdn.discordapp.com/avatars/708748287909298318/a_371eb402927697221fe3b59b0a315537.gif?size=1024",
+        profileImage: "https://cdn.discordapp.com/avatars/708748287909298318/eb0ab23ac4f5594022c8c21cce460174.png?size=1024",
         username: "Flame",
         role: 'staff-admin',
-        status: "Idle",
-        customStatus: "Idle Status.js"
+        status: "Online",
+        customStatus: ":yellow_small_man_moving_quickly:"
     },
     "543817742487388179": {
         profileImage: "https://cdn.discordapp.com/avatars/543817742487388179/801863b7b703ca8481108f20fa95bc31.png?size=128",
