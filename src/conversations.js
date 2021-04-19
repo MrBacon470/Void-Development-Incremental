@@ -291,8 +291,7 @@ const nothingConversations = [
 	'anyone remember plasma clicker?',
 	'lol',
 	'lmao',
-	'im going to do a P2W Eternal speedrun!',
-	'5 hours'
+	'im going to do a P2W Eternal speedrun!'
 ].reduce((acc, curr, index) => {
 	acc['nothing' + index] = typeof curr === 'string' ? singleMessage(curr) : curr;
 	return acc;
