@@ -61,6 +61,20 @@ export const userdata = {
         role: 'staff-admin',
         status: 'Online',
         customStatus:''
+    },
+    "330360353185857567": {
+        profileImage: "https://cdn.discordapp.com/avatars/330360353185857567/f8d0acfe41f6fa157d83e381ec53f6f9.webp?size=1024",
+        username: "epicness1582",
+        role: 'staff-helper',
+        status: 'Online',
+        customStatus: "I'm a sneaky snake"
+    },
+    "752728129126006905": {
+        profileImage: "https://cdn.discordapp.com/avatars/752728129126006905/0b369646bb30492f3644e1a12194aa65.webp?size=1024",
+        username: "dratini123",
+        role: "contributor",
+        status: "Online",
+        customStatus: ''
     }
 };
 
