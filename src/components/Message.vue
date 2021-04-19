@@ -85,7 +85,7 @@ export default {
     position: relative;
 }
 .message.first {
-    margin-top: 1em;
+    padding-top: 1.2em;
 }
 .message:hover {
     background-color: var(--background-message-hover);

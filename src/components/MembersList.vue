@@ -1,39 +1,45 @@
 <template>
 <div class="users-list" v-if="player.activeChannel.category !== 'DMs'">
-    <perfect-scrollbar>
-        <div v-for="(role, roleID) in usersByRole" :key="roleID">
-            <div class="role-header">
-                <p>{{ roles[roleID].title }} &#8212; {{ Object.keys(role).length }}</p>
+    <RecycleScroller :items="members" :item-size="48" style="height: 100%;" :buffer="300 + offset">
+        <template #before>
+            <div ref="nonvirtual">
+                <div v-for="(role, roleID) in usersByRole" :key="roleID">
+                    <div class="role-header">
+                        <p>{{ roles[roleID].title }} &#8212; {{ Object.keys(role).length }}</p>
+                    </div>
+                    <div v-for="(user, userID) in role" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+                        <div class="user-inner">
+                            <div class="avatar">
+                                <img class="pfp" :src="user.profileImage" :alt="user.username">
+                                <div class="status"></div>
+                            </div>
+                            <div class="user-text">
+                                <p class="name" :style="{ color: roles[roleID].color }">{{ user.username }}</p>
+                                <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
+                                <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="role-header">
+                    <p>MEMBERS &#8212; {{ members.length }}</p>
+                </div>
             </div>
-            <div v-for="(user, userID) in role" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+        </template>
+        <template v-slot="{ item }">
+            <div status="Online" class="user" v-on:click="openProfile(item)">
                 <div class="user-inner">
                     <div class="avatar">
-                        <img class="pfp" :src="user.profileImage" :alt="user.username">
+                        <div class="pfp fa fa-user" :style="{ backgroundColor: pickColor(item) }"></div>
                         <div class="status"></div>
                     </div>
                     <div class="user-text">
-                        <p class="name" :style="{ color: roles[roleID].color }">{{ user.username }}</p>
-                        <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
-                        <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                        <p class="name">{{ item }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="role-header">
-            <p>MEMBERS &#8212; {{ members.length }}</p>
-        </div>
-        <div v-for="user in members" :key="user" status="Online" class="user" v-on:click="openProfile(user)">
-            <div class="user-inner">
-                <div class="avatar">
-                    <div class="pfp fa fa-user" :style="{ backgroundColor: pickColor(user) }"></div>
-                    <div class="status"></div>
-                </div>
-                <div class="user-text">
-                    <p class="name">{{ user }}</p>
-                </div>
-            </div>
-        </div>
-    </perfect-scrollbar>
+        </template>
+    </RecycleScroller>
 </div>
 </template>
 
@@ -43,7 +49,7 @@ import { userdata, roles } from '../userdata.js';
 export default {
     name: 'members-list',
     data() {
-        return { userdata, roles }
+        return { userdata, roles, offset: 0 }
     },
     computed: {
         usersByRole() {
@@ -61,6 +67,18 @@ export default {
         members() {
             return this.player.users.filter(user => !(user in userdata));
         }
+    },
+    mounted() {
+        this.$nextTick(() => {
+            const observer = new ResizeObserver(entries => {
+                this.offset = entries[0].contentRect.height;
+                console.log(this.offset);
+            });
+            observer.observe(this.$refs.nonvirtual)
+        });
+    },
+    beforeDestroy() {
+        window.removeEventListener('resize', this.onResize);
     },
     methods: {
         openProfile(/*userID*/) {
@@ -83,7 +101,9 @@ export default {
     flex-direction: column;
     align-items: stretch;
     background-color: var(--background-secondary);
-    height: 100vh;
+    height: calc(100vh - 1em);
+    overflow-y: auto;
+    padding-bottom: 1em;
 }
 
 .role-header {

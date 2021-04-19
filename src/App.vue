@@ -132,22 +132,22 @@ button:disabled {
     min-height: 100vh;
 }
 
-.app .ps--active-y > .ps__rail-y {
-    background-color: var(--scrollbar-auto-track);
+::-webkit-scrollbar {
     width: .5em;
-    margin-right: .25em;
+    position: fixed;
 }
-.app .ps .ps__rail-y:hover,
-.app .ps .ps__rail-y.ps--clicking {
-    background-color: var(--scrollbar-auto-track);
+:hover::-webkit-scrollbar {
     width: 1em;
+    margin-left: -.5em;
 }
-.app .ps__thumb-y {
-    background-color: var(--scrollbar-auto-thumb);
+
+::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-auto-track);
+    border-radius: .25em;
 }
-.app .ps__rail-y:hover > .ps__thumb-y,
-.app .ps__rail-y.ps--clicking > .ps__thumb-y {
+
+::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-auto-thumb);
-    width: calc(1em - 4px);
+    border-radius: .25em;
 }
 </style>

@@ -14,9 +14,13 @@
     </div>
     <div class="messages" v-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
-        <perfect-scrollbar ref="scroll">
-            <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
-        </perfect-scrollbar>
+        <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll">
+            <template v-slot="{ item, index, active }">
+                <DynamicScrollerItem :item="item" :active="active" watchData :data-index="index" :data-active="active">
+                    <message :message="item" />
+                </DynamicScrollerItem>
+            </template>
+        </DynamicScroller>
         <welcome v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'welcome'" />
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
             <input class="messages-input" v-model="message" :placeholder="'Message ' + (channel.type === 'text' ? '#' : '@') + channel.title" ref="input" v-if="channel.type !== 'voice'"/>
@@ -52,7 +56,7 @@ export default {
     },
     mounted() {
         this.$refs.input.focus();
-        this.$refs.scroll.$el.scrollTop = this.$refs.scroll.$el.scrollHeight;
+        this.$refs.scroll.scrollToBottom();
     },
     watch: {
         channel: {
@@ -61,12 +65,12 @@ export default {
                 if (newVal !== oldVal && this.channel.type === 'text') {
                     this.$nextTick(() => {
                         this.$refs.input.focus();
-                        scroll.scrollTop = scroll.scrollHeight;
+                        this.$refs.scroll.scrollToBottom();
                     });
                 }
                 if (newVal === oldVal && scroll.scrollTop + scroll.offsetHeight === scroll.scrollHeight) {
                     this.$nextTick(() => {
-                        scroll.scrollTop = scroll.scrollHeight;
+                        this.$refs.scroll.scrollToBottom();
                     });
                 }
             },
@@ -103,7 +107,7 @@ export default {
                 });
                 this.message = '';
                 this.$nextTick(() => {
-                    this.$refs.scroll.$el.scrollTop = this.$refs.scroll.$el.scrollHeight;
+                    this.$refs.scroll.scrollToBottom();
                 });
             }
         }
@@ -279,10 +283,6 @@ export default {
         opacity: 0.5;
         transform: scale(.5);
     }
-}
-
-.messages .ps {
-    padding: 30px 0;
 }
 
 .channel-actions {

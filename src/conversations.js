@@ -124,7 +124,8 @@ function addMessage(category, channel, message, sender) {
 		influence = new Decimal(influence);
 		window.player.influence = window.player.influence.add(influence);
 	}
-	messages.push({ content, first, timestamp, userId, influence, joinMessage });
+	const id = window.player.nextMessageId++;
+	messages.push({ id, content, first, timestamp, userId, influence, joinMessage });
 }
 
 // Utility function for creating a single-message conversation
