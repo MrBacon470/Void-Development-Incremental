@@ -281,7 +281,18 @@ const nothingConversations = [
 	'I think cereal is a broth',
 	'Is Void Dead?',
 	'Dead Chat XD',
-	'Update when?'
+	'Update when?',
+	'hello',
+	'?ban',
+	'>level',
+	'why is everyone afk in the vc?',
+	'a',
+	'does anyone still play Chemcremental?',
+	'anyone remember plasma clicker?',
+	'lol',
+	'lmao',
+	'im going to do a P2W Eternal speedrun!',
+	'5 hours'
 ].reduce((acc, curr, index) => {
 	acc['nothing' + index] = typeof curr === 'string' ? singleMessage(curr) : curr;
 	return acc;
