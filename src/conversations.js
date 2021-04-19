@@ -275,7 +275,13 @@ const nothingConversations = [
 	'We do a large amount of trolling',
 	'We do a minuscule amount of tomfoolery',
 	'hi',
-	'hey'
+	'hey',
+	'Is this the better Jacorb Server?',
+	'Gamening',
+	'I think cereal is a broth',
+	'Is Void Dead?',
+	'Dead Chat XD',
+	'Update when?'
 ].reduce((acc, curr, index) => {
 	acc['nothing' + index] = typeof curr === 'string' ? singleMessage(curr) : curr;
 	return acc;
