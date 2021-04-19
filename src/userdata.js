@@ -75,6 +75,13 @@ export const userdata = {
         role: "contributor",
         status: "Online",
         customStatus: ''
+    },
+    "422117994915954699": {
+        profileImage: "https://cdn.discordapp.com/avatars/422117994915954699/bcf24f8f01923a3190fbf3c0ed6003ca.webp?size=1024",
+        username: "Waddles",
+        role: "contributor",
+        status: "DND",
+        customStatus: ''
     }
 };
 
