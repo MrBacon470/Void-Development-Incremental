@@ -79,8 +79,15 @@ export const userdata = {
     "422117994915954699": {
         profileImage: "https://cdn.discordapp.com/avatars/422117994915954699/bcf24f8f01923a3190fbf3c0ed6003ca.webp?size=1024",
         username: "Waddles",
-        role: "contributor",
+        role: "booster",
         status: "DND",
+        customStatus: ''
+    },
+    "392092706727264256": {
+        profileImage: "https://cdn.discordapp.com/avatars/392092706727264256/6db293b54467f2f5e6126057b6d2c07d.webp?size=1024",
+        username: "rock",
+        role: "booster",
+        status: "Online",
         customStatus: ''
     }
 };
@@ -129,6 +136,7 @@ export const roles = {
     'developer': { title: 'DEVELOPER', color: 'rgb(184, 105, 255)' },
     'staff-admin': { title: 'STAFF-ADMIN', color: 'rgb(255, 59, 125)' },
     'staff-helper': { title: 'STAFF-HELPER', color: 'rgb(127, 245, 206)'},
+    'booster': {title: 'VOID CRYSTALLINE', color: '#f47fff'},
     'contributor': {title: 'CONTRIBUTOR', color: 'rgb(131, 126, 252)'},
     'kuaka-salesman': { title: 'KUAKA SALESMAN', color: 'rgb(189, 17, 255)' },
 }
