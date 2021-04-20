@@ -14,11 +14,11 @@ export const userdata = {
         playing: "Void Development Incremental"
     },
     "708748287909298318": {
-        profileImage: "https://cdn.discordapp.com/avatars/708748287909298318/a_371eb402927697221fe3b59b0a315537.gif?size=1024",
+        profileImage: "https://cdn.discordapp.com/avatars/708748287909298318/eb0ab23ac4f5594022c8c21cce460174.png?size=1024",
         username: "Flame",
         role: 'staff-admin',
-        status: "Idle",
-        customStatus: "Idle Status.js"
+        status: "Online",
+        customStatus: ":yellow_small_man_moving_quickly:"
     },
     "543817742487388179": {
         profileImage: "https://cdn.discordapp.com/avatars/543817742487388179/801863b7b703ca8481108f20fa95bc31.png?size=128",
@@ -61,6 +61,27 @@ export const userdata = {
         role: 'staff-admin',
         status: 'Online',
         customStatus:''
+    },
+    "330360353185857567": {
+        profileImage: "https://cdn.discordapp.com/avatars/330360353185857567/f8d0acfe41f6fa157d83e381ec53f6f9.webp?size=1024",
+        username: "epicness1582",
+        role: 'staff-helper',
+        status: 'Online',
+        customStatus: "I'm a sneaky snake"
+    },
+    "752728129126006905": {
+        profileImage: "https://cdn.discordapp.com/avatars/752728129126006905/0b369646bb30492f3644e1a12194aa65.webp?size=1024",
+        username: "dratini123",
+        role: "contributor",
+        status: "Online",
+        customStatus: ''
+    },
+    "422117994915954699": {
+        profileImage: "https://cdn.discordapp.com/avatars/422117994915954699/bcf24f8f01923a3190fbf3c0ed6003ca.webp?size=1024",
+        username: "Waddles",
+        role: "contributor",
+        status: "DND",
+        customStatus: ''
     }
 };
 
