@@ -14,9 +14,9 @@
     </div>
     <div class="messages" v-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
-        <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll">
+        <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll" :buffer="50">
             <template v-slot="{ item, index, active }">
-                <DynamicScrollerItem :item="item" :active="active" watchData :data-index="index" :data-active="active">
+                <DynamicScrollerItem :item="item" :active="active" :size-dependencies="[ item.id ]">
                     <message :message="item" />
                 </DynamicScrollerItem>
             </template>
@@ -51,7 +51,8 @@ export default {
 	},
     data() {
         return {
-            message: ''
+            message: '',
+            scrollingToBottom: false
         }
     },
     mounted() {
@@ -68,10 +69,8 @@ export default {
                         this.$refs.scroll.scrollToBottom();
                     });
                 }
-                if (newVal === oldVal && scroll.scrollTop + scroll.offsetHeight === scroll.scrollHeight) {
-                    this.$nextTick(() => {
-                        this.$refs.scroll.scrollToBottom();
-                    });
+                if (newVal === oldVal && Math.abs(scroll.scrollTop + scroll.offsetHeight - scroll.scrollHeight) < 50) {
+                    this.scrollingToBottom = true;
                 }
             },
             deep: true
@@ -97,6 +96,12 @@ export default {
                 });
         }
     },
+    updated() {
+        if (this.scrollingToBottom) {
+            this.$nextTick(() => this.$refs.scroll.scrollToBottom());
+            this.scrollingToBottom = false;
+        }
+    },
     methods: {
         sendMessage() {
             this.message = this.message.trim();
@@ -106,9 +111,7 @@ export default {
                     userId: "667109969438441486"
                 });
                 this.message = '';
-                this.$nextTick(() => {
-                    this.$refs.scroll.scrollToBottom();
-                });
+                this.scrollingToBottom = true;
             }
         }
     }

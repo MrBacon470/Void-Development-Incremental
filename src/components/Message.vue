@@ -1,7 +1,7 @@
 <template>
 <div :class="{ message: true, first: message.first }">
-    <img class="pfp" v-if="profileImage" :src="profileImage" :alt="username">
-    <div class="pfp fa fa-user" v-else :style="{ backgroundColor: pickColor(message.userId) }"></div>
+    <img class="pfp" v-if="message.first && profileImage" :src="profileImage" :alt="username">
+    <div class="pfp fa fa-user" v-else-if="message.first" :style="{ backgroundColor: pickColor(message.userId) }"></div>
     <p class="name" :style="{ color: roleColor }">{{ username }}
         <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
         <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>

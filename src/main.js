@@ -3,6 +3,7 @@ import App from './App.vue';
 import Decimal from './break_eternity.js';
 import { format, formatWhole, formatTime } from './numberFormatting.js';
 import { updateConversations, welcomeMessages } from './conversations.js';
+import { roles } from './userdata.js';
 import PerfectScrollbar from 'vue2-perfect-scrollbar';
 import VueVirtualScroller from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
@@ -83,8 +84,21 @@ let startData = {
 	currentTime: performance.now(),
 	activeConvos: [],
 	performedIntro: false,
-	users: [
-		"667109969438441486",
+	// TODO re-construct roles list from heros list in fixData
+	roles: {
+		...Object.keys(roles).reduce((acc, curr) => {
+			acc[curr] = [];
+			return acc;
+		}, {}),
+		developer: [
+			"667109969438441486"
+		]
+	},
+	heros: [],
+	users: {
+		"Bob": true
+	},
+	sortedUsers: [
 		"Bob"
 	],
 	nextMessageId: 1

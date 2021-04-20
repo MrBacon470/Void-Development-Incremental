@@ -1,28 +1,29 @@
 <template>
-<div class="users-list" v-if="player.activeChannel.category !== 'DMs'">
-    <RecycleScroller :items="members" :item-size="48" style="height: 100%;" :buffer="300 + offset">
+<div class="users-list" v-if="showList">
+    <RecycleScroller :items="player.sortedUsers" :item-size="48" style="height: 100%;" :buffer="300 + offset">
         <template #before>
             <div ref="nonvirtual">
-                <div v-for="(role, roleID) in usersByRole" :key="roleID">
+                <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
+                <div v-for="(role, roleID) in player.roles" :key="roleID" v-if="role.length > 0">
                     <div class="role-header">
-                        <p>{{ roles[roleID].title }} &#8212; {{ Object.keys(role).length }}</p>
+                        <p>{{ roles[roleID].title }} &#8212; {{ role.length }}</p>
                     </div>
-                    <div v-for="(user, userID) in role" :key="userID" :status="user.status" class="user" v-on:click="openProfile(userID)">
+                    <div v-for="user in role" :key="user" :status="userdata[user].status" class="user" v-on:click="openProfile(user)">
                         <div class="user-inner">
                             <div class="avatar">
-                                <img class="pfp" :src="user.profileImage" :alt="user.username">
+                                <img class="pfp" :src="userdata[user].profileImage" :alt="userdata[user].username">
                                 <div class="status"></div>
                             </div>
                             <div class="user-text">
-                                <p class="name" :style="{ color: roles[roleID].color }">{{ user.username }}</p>
-                                <p class="desc" v-if="user.playing != null">Playing <strong>{{ user.playing }}</strong></p>
-                                <p class="desc" v-else-if="user.customStatus != null">{{ user.customStatus }}</p>
+                                <p class="name" :style="{ color: roles[roleID].color }">{{ userdata[user].username }}</p>
+                                <p class="desc" v-if="userdata[user].playing != null">Playing <strong>{{ userdata[user].playing }}</strong></p>
+                                <p class="desc" v-else-if="userdata[user].customStatus != null">{{ userdata[user].customStatus }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="role-header">
-                    <p>MEMBERS &#8212; {{ members.length }}</p>
+                    <p>MEMBERS &#8212; {{ player.sortedUsers.length }}</p>
                 </div>
             </div>
         </template>
@@ -49,33 +50,33 @@ import { userdata, roles } from '../userdata.js';
 export default {
     name: 'members-list',
     data() {
-        return { userdata, roles, offset: 0 }
+        return {
+            userdata,
+            roles,
+            offset: 0,
+            observer: new ResizeObserver(entries => {
+                this.offset = entries[0].contentRect.height;
+            })
+        }
     },
     computed: {
-        usersByRole() {
-            return Object.keys(roles).reduce((acc, curr) => {
-                const users = this.player.users.filter(user => user in userdata && userdata[user].role === curr);
-                if (users.length > 0) {
-                    acc[curr] = users.reduce((acc, curr) => {
-                        acc[curr] = userdata[curr];
-                        return acc;
-                    }, {});
-                }
-                return acc;
-            }, {});
-        },
-        members() {
-            return this.player.users.filter(user => !(user in userdata));
+        showList() {
+            return this.player.activeChannel.category !== 'DMs';
         }
     },
     mounted() {
         this.$nextTick(() => {
-            const observer = new ResizeObserver(entries => {
-                this.offset = entries[0].contentRect.height;
-                console.log(this.offset);
-            });
-            observer.observe(this.$refs.nonvirtual)
+            this.observer.observe(this.$refs.nonvirtual);
         });
+    },
+    watch: {
+        showList() {
+            if (this.showList) {
+                this.$nextTick(() => {
+                    this.observer.observe(this.$refs.nonvirtual);
+                });
+            }
+        }
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize);
