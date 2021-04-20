@@ -137,6 +137,7 @@ function fixData(data, startData) {
 let loadedData = localStorage.getItem(storageKey);
 if (loadedData == null) {
 	loadedData = JSON.parse(JSON.stringify(startData));
+	fixData(loadedData, startData);
 } else {
 	loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
 	fixData(loadedData, startData);
@@ -162,11 +163,9 @@ if (!store.performedIntro) {
 
 // Hard reset function!
 window.hardReset = function() {
-	Object.assign(store, JSON.parse(JSON.stringify(startData)));
-	fixData(loadedData, startData);
-	store.currentTime = performance.now();
-	store.performedIntro = true;
-	store.activeConvos.push({ convoId: "intro", users: [ 'Bob' ], category: 'DMs', channel: 'Bob', nextMessage: 0, progress: 0 });
+	store.autosave = false;
+	localStorage.removeItem(storageKey);
+	location.reload();
 }
 
 // Set up auto-saving every second
