@@ -14,9 +14,13 @@
     </div>
     <div class="messages" v-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
-        <perfect-scrollbar ref="scroll">
-            <message v-for="(message, index) in channel.messages" :message="message" :key="index" />
-        </perfect-scrollbar>
+        <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll" :buffer="50">
+            <template v-slot="{ item, index, active }">
+                <DynamicScrollerItem :item="item" :active="active" :size-dependencies="[ item.id ]">
+                    <message :message="item" />
+                </DynamicScrollerItem>
+            </template>
+        </DynamicScroller>
         <welcome v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'welcome'" />
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
             <input class="messages-input" v-model="message" :placeholder="'Message ' + (channel.type === 'text' ? '#' : '@') + channel.title" ref="input" v-if="channel.type !== 'voice'"/>
@@ -47,12 +51,13 @@ export default {
 	},
     data() {
         return {
-            message: ''
+            message: '',
+            scrollingToBottom: false
         }
     },
     mounted() {
         this.$refs.input.focus();
-        this.$refs.scroll.$el.scrollTop = this.$refs.scroll.$el.scrollHeight;
+        this.$refs.scroll.scrollToBottom();
     },
     watch: {
         channel: {
@@ -61,13 +66,11 @@ export default {
                 if (newVal !== oldVal && this.channel.type === 'text') {
                     this.$nextTick(() => {
                         this.$refs.input.focus();
-                        scroll.scrollTop = scroll.scrollHeight;
+                        this.$refs.scroll.scrollToBottom();
                     });
                 }
-                if (newVal === oldVal && scroll.scrollTop + scroll.offsetHeight === scroll.scrollHeight) {
-                    this.$nextTick(() => {
-                        scroll.scrollTop = scroll.scrollHeight;
-                    });
+                if (newVal === oldVal && Math.abs(scroll.scrollTop + scroll.offsetHeight - scroll.scrollHeight) < 50) {
+                    this.scrollingToBottom = true;
                 }
             },
             deep: true
@@ -93,6 +96,12 @@ export default {
                 });
         }
     },
+    updated() {
+        if (this.scrollingToBottom) {
+            this.$nextTick(() => this.$refs.scroll.scrollToBottom());
+            this.scrollingToBottom = false;
+        }
+    },
     methods: {
         sendMessage() {
             this.message = this.message.trim();
@@ -102,9 +111,7 @@ export default {
                     userId: "667109969438441486"
                 });
                 this.message = '';
-                this.$nextTick(() => {
-                    this.$refs.scroll.$el.scrollTop = this.$refs.scroll.$el.scrollHeight;
-                });
+                this.scrollingToBottom = true;
             }
         }
     }
@@ -279,10 +286,6 @@ export default {
         opacity: 0.5;
         transform: scale(.5);
     }
-}
-
-.messages .ps {
-    padding: 30px 0;
 }
 
 .channel-actions {

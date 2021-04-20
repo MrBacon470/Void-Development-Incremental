@@ -119,7 +119,7 @@ export function getRandomUser() {
     if (Math.random() > 0.5) {
         name += nameList[Math.floor(Math.random() * nameList.length)];
     }
-    while (window.player.users.includes(name)) {
+    while (window.player.users[name]) {
         name += nameList[Math.floor(Math.random() * nameList.length)];
     }
     return name;

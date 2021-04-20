@@ -3,8 +3,10 @@ import App from './App.vue';
 import Decimal from './break_eternity.js';
 import { format, formatWhole, formatTime } from './numberFormatting.js';
 import { updateConversations, welcomeMessages } from './conversations.js';
+import { roles } from './userdata.js';
 import PerfectScrollbar from 'vue2-perfect-scrollbar';
-import "vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css"
+import VueVirtualScroller from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 window.Decimal = Decimal;
 
@@ -29,7 +31,8 @@ let startData = {
 						{
 							timestamp: Date.now(),
 							joinMessage: welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]('Bob'),
-							userId: 'Bob'
+							userId: 'Bob',
+							id: 0
 						}
 					],
 					description: ":blobwave:"
@@ -81,10 +84,24 @@ let startData = {
 	currentTime: performance.now(),
 	activeConvos: [],
 	performedIntro: false,
-	users: [
-		"667109969438441486",
+	// TODO re-construct roles list from heros list in fixData
+	roles: {
+		...Object.keys(roles).reduce((acc, curr) => {
+			acc[curr] = [];
+			return acc;
+		}, {}),
+		developer: [
+			"667109969438441486"
+		]
+	},
+	heros: [],
+	users: {
+		"Bob": true
+	},
+	sortedUsers: [
 		"Bob"
-	]
+	],
+	nextMessageId: 1
 }
 function fixData(data, startData) {
 	for (let dataKey in startData) {
@@ -171,6 +188,7 @@ Vue.filter('timeFormat', function (value) {
 	return formatTime(value);
 });
 Vue.use(PerfectScrollbar);
+Vue.use(VueVirtualScroller);
 
 // Start Vue
 window.vue = new Vue({

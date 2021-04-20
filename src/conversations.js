@@ -25,12 +25,8 @@ function startConversation(category, channel, convo, extra) {
 	}
 
 	// Pick users for conversation
-	// TODO cache this?
-	let conversingUsers = window.player.users.filter(user => {
-		// Prioritize hero users
-		if (user in userdata) {
-			return false;
-		}
+	// TODO optimize
+	let conversingUsers = Object.keys(window.player.heros).filter(user => {
 		for (let c of window.player.activeConvos) {
 			if (c.users.includes(user)) {
 				return false;
@@ -38,15 +34,17 @@ function startConversation(category, channel, convo, extra) {
 		}
 		return true;
 	});
-
 	conversingUsers = [...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
 	let users = conversations[convo].users.map(u => {
 		if (typeof u === 'object') {
-			let users = window.player.users.filter(u => u !== "667109969438441486" && !conversingUsers.includes(u));
+			let users = Object.keys(window.player.heros).filter(u => !conversingUsers.includes(u));
 			// TODO apply filters based on options stored in object
 			// Might mean moving the hero user prioritization from the conversingUsers construction
 			if (users.length === 0) {
-				users = window.player.users.filter(u => u !== "667109969438441486" && !conversations[convo].users.includes(u));
+				users = Object.keys(window.player.heros).filter(u => !conversations[convo].users.includes(u));
+				if (users.length === 0) {
+					users = window.player.sortedUsers;
+				}
 			}
 			u = users[Math.floor(Math.random() * users.length)];
 		}
@@ -124,7 +122,8 @@ function addMessage(category, channel, message, sender) {
 		influence = new Decimal(influence);
 		window.player.influence = window.player.influence.add(influence);
 	}
-	messages.push({ content, first, timestamp, userId, influence, joinMessage });
+	const id = window.player.nextMessageId++;
+	messages.push({ id, content, first, timestamp, userId, influence, joinMessage });
 }
 
 // Utility function for creating a single-message conversation
@@ -315,8 +314,7 @@ const genericNounConversations = [
 	acc['genericNoun' + index] = {
 		...curr,
 		weight() {
-			// Subtract 1 user because Void isn't a valid user
-			return this.users.length > window.player.users.length - 1 ? 0 : curr.weight || 1;
+			return this.users.length > window.player.sortedUsers.length + Object.keys(window.player.heros).length ? 0 : curr.weight || 1;
 		}
 	};
 	return acc;
