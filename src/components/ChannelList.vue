@@ -13,6 +13,7 @@
                     'text-channel': channel.type === 'text',
                     'voice-channel': channel.type === 'voice',
                     'announcement-channel': channel.type === 'announcement',
+                    'store-channel': channel.type === 'store',
                     selected: player.activeChannel.category === categoryID && player.activeChannel.channel === channelID,
                     active: channel.ping,
                     collapsed: category.collapsed
@@ -24,6 +25,7 @@
                         'fa-hashtag': channel.type === 'text',
                         'fa-volume-up': channel.type === 'voice',
                         'fa-bullhorn': channel.type === 'announcement',
+                        'fa-tag': channel.type === 'store'
                     }"></i>
                     <p>{{ channel.title }}</p>
                 </div>

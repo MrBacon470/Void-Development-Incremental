@@ -6,7 +6,8 @@
             'fa-hashtag': channel.type === 'text',
             'fa-volume-up': channel.type === 'voice',
             'fa-bullhorn': channel.type === 'announcement',
-            'fa-at': channel.type === 'DM'
+            'fa-at': channel.type === 'DM',
+            'fa-tag': channel.type === 'store'
         }"></i>
         <div class="channel-header">{{ channel.title }}</div>
         <div class="divider" v-if="channel.description"></div>

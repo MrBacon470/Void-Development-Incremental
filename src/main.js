@@ -37,6 +37,12 @@ let startData = {
 					],
 					description: ":blobwave:"
 				},
+				upgrades: {
+					title: 'upgrades-store',
+					type:'store',
+					messages: [],
+					description: "Purchase Upgrades Here"
+				}
 			}
 		},
 		general: {
