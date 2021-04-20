@@ -13,7 +13,8 @@
         <div class="divider" v-if="channel.description"></div>
         <div class="channel-description">{{ channel.description }}</div>
     </div>
-    <div class="messages" v-if="channel.type !== 'voice' && channel.type !== 'announcement'">
+  <store v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'store'"/>
+    <div class="messages" v-else-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
         <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll" :buffer="50">
             <template v-slot="{ item, active }">
@@ -23,6 +24,7 @@
             </template>
         </DynamicScroller>
         <welcome v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'welcome'" />
+
         <form class="messages-footer" v-on:submit.prevent="sendMessage">
             <input class="messages-input" v-model="message" :placeholder="'Message ' + (channel.type === 'text' ? '#' : '@') + channel.title" ref="input" v-if="channel.type !== 'voice'"/>
         </form>
@@ -42,13 +44,16 @@
 <script>
 import Message from './Message.vue';
 import Welcome from './Welcome.vue';
+import store from './Store.vue';
 import { sendPlayerMessage, conversations } from '../conversations.js';
 import { userdata } from '../userdata.js';
+import Store from "@/components/Store";
 
 export default {
 	name: 'channel',
 	components: {
-		Message, Welcome
+    Store,
+		Message, Welcome, store,
 	},
     data() {
         return {
