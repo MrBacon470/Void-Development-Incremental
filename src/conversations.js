@@ -358,7 +358,7 @@ const welcomeMessages = [
 	"[!!{username}!!](usernameOnClick) just slid into the server.",
 	"A [!!{username}!!](usernameOnClick) has spawned in the server.",
 	"Big [!!{username}!!](usernameOnClick) showed up!",
-	"Where’s [!!{username}!!](usernameOnClick)? In the server!",
+	"Where's [!!{username}!!](usernameOnClick)? In the server!",
 	"[!!{username}!!](usernameOnClick) hopped into the server. Kangaroo!!",
 	"[!!{username}!!](usernameOnClick) just showed up. Hold my beer.",
 	"Challenger approaching - [!!{username}!!](usernameOnClick) has appeared!",

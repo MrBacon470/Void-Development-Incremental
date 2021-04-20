@@ -65,9 +65,11 @@ export default {
         }
     },
     mounted() {
-        this.$nextTick(() => {
-            this.observer.observe(this.$refs.nonvirtual);
-        });
+        if (this.showList) {
+            this.$nextTick(() => {
+                this.observer.observe(this.$refs.nonvirtual);
+            });
+        }
     },
     watch: {
         showList() {
