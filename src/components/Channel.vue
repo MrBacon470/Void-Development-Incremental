@@ -15,7 +15,7 @@
     <div class="messages" v-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
         <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll" :buffer="50">
-            <template v-slot="{ item, index, active }">
+            <template v-slot="{ item, active }">
                 <DynamicScrollerItem :item="item" :active="active" :size-dependencies="[ item.id ]">
                     <message :message="item" />
                 </DynamicScrollerItem>
