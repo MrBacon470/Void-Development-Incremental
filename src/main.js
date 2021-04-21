@@ -30,7 +30,7 @@ let startData = {
 					messages: [
 						{
 							timestamp: Date.now(),
-							joinMessage: welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]('Bob'),
+							joinMessage: Math.floor(Math.random() * welcomeMessages.length),
 							userId: 'Bob',
 							id: 0
 						}

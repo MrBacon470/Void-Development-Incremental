@@ -7,23 +7,24 @@
         <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
         <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
     </p>
-    <p class="text" v-if="message.content">{{ message.content }}<span v-if="message.influence" :class="{
-        'change-influence': true,
-        gain: message.influence.gt(0),
-        loss: message.influence.lt(0)
-    }">{{ message.influence.abs() | numberFormatWhole }} influence</span></p>
-    <p class="text welcome" v-else-if="message.joinMessage">
+    <p class="text welcome" v-if="message.joinMessage != null">
         <i class="fa fa-arrow-right" />
-        <span v-html="message.joinMessage"></span>
+        <span v-html="content"></span>
         <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
         <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
         <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
     </p>
+    <p class="text" v-else>{{ content }}<span v-if="message.influence" :class="{
+        'change-influence': true,
+        gain: message.influence.gt(0),
+        loss: message.influence.lt(0)
+    }">{{ message.influence.abs() | numberFormatWhole }} influence</span></p>
 </div>
 </template>
 
 <script>
 import { userdata, roles } from '../userdata.js';
+import { welcomeMessages } from '../conversations.js';
 
 export default {
 	name: 'message',
@@ -45,6 +46,9 @@ export default {
         },
         timestamp() {
             return new Date(this.message.timestamp);
+        },
+        content() {
+            return this.message.content || welcomeMessages[this.message.joinMessage](this.message.userId);
         }
     },
     props: [

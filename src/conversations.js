@@ -156,7 +156,7 @@ function handleResponse(convo, message, response) {
 
 function addJoinMessage(newUser) {
 	addMessage('info', 'welcome', {
-        joinMessage: welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)](newUser in userdata ? userdata[newUser].username : newUser),
+        joinMessage: Math.floor(Math.random() * welcomeMessages.length),
         userId: newUser
     });
 }
