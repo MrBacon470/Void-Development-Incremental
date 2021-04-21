@@ -40,7 +40,6 @@ let startData = {
 				store: {
 					title: 'store',
 					type:'store',
-					messages: [],
 					description: "Purchase Upgrades Here"
 				}
 			}
@@ -100,7 +99,7 @@ let startData = {
 			"667109969438441486"
 		]
 	},
-	heros: [],
+	heros: {},
 	users: {
 		"Bob": true
 	},

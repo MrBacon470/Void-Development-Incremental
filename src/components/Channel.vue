@@ -13,7 +13,7 @@
         <div class="divider" v-if="channel.description"></div>
         <div class="channel-description">{{ channel.description }}</div>
     </div>
-  <store v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'store'"/>
+    <store v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'store'" />
     <div class="messages" v-else-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
         <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll" :buffer="50">
