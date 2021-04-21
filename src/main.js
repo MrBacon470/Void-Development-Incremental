@@ -144,7 +144,12 @@ if (loadedData == null) {
 	loadedData = JSON.parse(JSON.stringify(startData));
 	fixData(loadedData, startData);
 } else {
-	loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
+	try {
+		loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
+	} catch {
+		console.log("Error while parsing save. Starting fresh.");
+		loadedData = JSON.parse(JSON.stringify(startData));
+	}
 	fixData(loadedData, startData);
 	// Update influence values on messages to Decimals
 	for (let category in loadedData.categories) {
