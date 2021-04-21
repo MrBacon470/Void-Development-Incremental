@@ -1,7 +1,7 @@
 <template>
   <div class="upgradesParent">
-    <span class="upgradesHeader">Upgrades Store</span>
-    <span class="upgradesCategoryHeader">Upgrade Category</span>
+    <p class="upgradesHeader">Upgrades Store</p>
+    <p class="upgradesCategoryHeader">Upgrade Category</p>
     <div class="upgradesGrid">
       <button v-on:click="logSomething('test1')">Purchase Upgrade 1</button>
       <button v-on:click="logSomething('test2')">Purchase Upgrade 2</button>
@@ -35,12 +35,12 @@ name: "store",
     grid-auto-rows: 1fr;
   }
   .upgradesHeader {
-    font-size: 4em;
-    margin-top: 2em;
-    margin-bottom: 2em;
+    font-size: 2em;
+    margin-top: 1em;
+    margin-bottom: 1em;
   }
   .upgradesCategoryHeader {
-    font-size: 2.5em;
-    margin-bottom: 2em;
+    font-size: 1.5em;
+    margin-bottom: 1em;
   }
 </style>
