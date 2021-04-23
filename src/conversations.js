@@ -73,15 +73,19 @@ function updateConversations(delta) {
 		const convo = conversations[activeConvo.convoId];
 		let nextMessage = convo.messages[activeConvo.nextMessage];
 
-		if (nextMessage.type === 'user') {
+		if (nextMessage.type === 'user' || (nextMessage.type === 'player' && nextMessage.optional)) {
 			activeConvo.progress += delta;
-			if (typeof nextMessage.content === 'function') {
-				convo.messages[activeConvo.nextMessage] = nextMessage = Object.assign({}, nextMessage);
-				nextMessage.content = nextMessage.content.call(activeConvo);
-			}
 
-			if (activeConvo.progress >= (nextMessage.delay || 1) + (nextMessage.typingDuration || (nextMessage.content.length * .05))) {
+			let delay = nextMessage.delay || 1;
+			if (nextMessage.typingDuration || nextMessage.content) {
+				delay += nextMessage.typingDuration || (nextMessage.content.length * .05);
+			}
+			if (activeConvo.progress >= delay) {
 				// Time to show next message
+				if (typeof nextMessage.content === 'function') {
+					nextMessage = Object.assign({}, nextMessage);
+					nextMessage.content = nextMessage.content.call(activeConvo);
+				}
 				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[nextMessage.user]);
 				activeConvo.progress = 0;
 				activeConvo.nextMessage = nextMessage.goto != null ? nextMessage.goto : activeConvo.nextMessage + 1;
@@ -151,7 +155,7 @@ function handleResponse(convo, message, response) {
 		}
 	}
 	// Returns true if this should be removed from the list of activeConvos
-	return convo.nextMessage >= conversations[convo.convoId].messages.length;
+	return convo.message < 0 || convo.nextMessage >= conversations[convo.convoId].messages.length;
 }
 
 function addJoinMessage(newUser) {
@@ -159,6 +163,32 @@ function addJoinMessage(newUser) {
         joinMessage: Math.floor(Math.random() * welcomeMessages.length),
         userId: newUser
     });
+}
+
+function branchSentiment(convo, index, message, { positive, negative, neutral }) {
+	// TODO is vader-sentiment the fastest one available?
+	// I chose it over sentiment because that one didn't recognize things like "sure" as positive,
+	// and vader claims to support slang and modifiers (e.g. "not good") better. That probably
+	// also means its slower though (haven't benchmarked)
+	const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
+	console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
+	if (sentiment.compound > 0.05 && positive != null) {
+		if (handleResponse(convo, message, positive)) {
+			window.player.activeConvos.splice(index, 1);
+		}
+		return true;
+	} else if (sentiment.compound <= -.05 && negative != null) {
+		if (handleResponse(convo, message, negative)) {
+			window.player.activeConvos.splice(index, 1);
+		}
+		return true;
+	} else if (neutral != null) {
+		if (handleResponse(convo, message, neutral)) {
+			window.player.activeConvos.splice(index, 1);
+		}
+		return true;
+	}
+	return false;
 }
 
 function sendPlayerMessage(message) {
@@ -170,30 +200,9 @@ function sendPlayerMessage(message) {
 		if (foundConvo) return;
 		if (c.category !== category || c.channel !== channel) return;
 		const nextMessage = conversations[c.convoId].messages[c.nextMessage];
-		if (nextMessage.type === 'player') {
+		if (nextMessage.type === 'player' && (nextMessage.isValid == null || nextMessage.isValid(c, message))) {
 			if (nextMessage.nlpType === 'sentiment') {
-				// TODO is vader-sentiment the fastest one available?
-				// I chose it over sentiment because that one didn't recognize things like "sure" as positive,
-				// and vader claims to support slang and modifiers (e.g. "not good") better. That probably
-				// also means its slower though (haven't benchmarked)
-				const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
-				console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
-				if (sentiment.compound > 0.05 && nextMessage.positive != null) {
-					if (handleResponse(c, message, nextMessage.positive)) {
-						window.player.activeConvos.splice(index, 1);
-					}
-					foundConvo = true;
-				} else if (sentiment.compound <= -.05 && nextMessage.negative != null) {
-					if (handleResponse(c, message, nextMessage.negative)) {
-						window.player.activeConvos.splice(index, 1);
-					}
-					foundConvo = true;
-				} else if (nextMessage.neutral != null) {
-					if (handleResponse(c, message, nextMessage.neutral)) {
-						window.player.activeConvos.splice(index, 1);
-					}
-					foundConvo = true;
-				}
+				foundConvo = branchSentiment(c, index, message, nextMessage);
 			}
 			// TODO other types of player response requests, using the "compromise" package
 		}
@@ -304,7 +313,11 @@ const genericNounConversations = [
 	{
 		messages: [
 			{ type: 'user', user: 0, content() { return `${this.noun}? I love ${this.noun}!` } },
-			{ type: 'user', user: 1, content() { return `Pssh, ${this.noun} is so overrated. Get something new to like` }, delay: 2 }
+			{ type: 'user', user: 1, content() { return `Pssh, ${this.noun} is so overrated. Get something new to like` }, delay: 2 },
+			{ type: 'player', optional: true, delay: 10, isValid: (convo, message) => nlp(message.content).match(convo.noun).found, nlpType: 'sentiment', positive: 3, negative: { goto: 4, influence: -1 } },
+			{ type: 'user', user: 0, content() { return `THANK YOU void, finally someone understands` }, delay: 3, influence: 1, goto: -1 },
+			{ type: 'user', user: 0, content() { return `jfc void, come on.` }, delay: 2 },
+			{ type: 'user', user: 1, content() { return `lmao get trolled void and ${getDisplayName(this.users[0])}` }, delay: 2 }
 		],
 		users: [ {}, {} ]
 	},
@@ -313,6 +326,15 @@ const genericNounConversations = [
 			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${this.noun} but then I realized it's actually really easy to like` } }
 		],
 		users: [ {} ]
+	},
+	{
+		messages: [
+			{ type: 'user', user: 0, content() { return `oh man me and ${getDisplayName(this.users[1])} were just discussing this. Right @${getDisplayName(this.users[1])}?` } },
+			{ type: 'user', user: 1, content() { return `who pinged me?` }, delay: 20 },
+			{ type: 'user', user: 0, content() { return `me. Do you remember us talking about ${this.noun}?` } },
+			{ type: 'user', user: 1, content() { return `no lol` } }
+		],
+		users: [ {}, {} ]
 	}
 ].reduce((acc, curr, index) => {
 	acc['genericNoun' + index] = {

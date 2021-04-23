@@ -137,6 +137,9 @@ export default {
 .change-influence.loss {
     color: var(--color-neg-influence);
 }
+.change-influence.loss::before {
+    content: "-";
+}
 
 .welcome {
     position: relative;
