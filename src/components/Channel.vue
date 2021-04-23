@@ -13,7 +13,7 @@
         <div class="divider" v-if="channel.description"></div>
         <div class="channel-description">{{ channel.description }}</div>
     </div>
-  <store v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'store'"/>
+    <store v-if="this.player.activeChannel.category === 'info' && this.player.activeChannel.channel === 'store'" />
     <div class="messages" v-else-if="channel.type !== 'voice' && channel.type !== 'announcement'">
         <div class="messages-fill"></div>
         <DynamicScroller :items="channel.messages" :min-item-size="28" style="max-height: 100%; padding: 30px 0;" ref="scroll" :buffer="50">
@@ -46,7 +46,7 @@ import Message from './Message.vue';
 import Welcome from './Welcome.vue';
 import store from './Store.vue';
 import { sendPlayerMessage, conversations } from '../conversations.js';
-import { userdata } from '../userdata.js';
+import { heros } from '../userdata.js';
 import Store from "@/components/Store";
 
 export default {
@@ -93,12 +93,12 @@ export default {
                 .filter(c => c.category === category && c.channel === channel)
                 .filter(c => {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];
-                    return nextMessage.type === 'user' && (nextMessage.delay || 1) < c.progress;
+                    return nextMessage && nextMessage.type === 'user' && (nextMessage.delay || 1) < c.progress;
                 })
                 .map(c => {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];
                     const user = c.users[nextMessage.user];
-                    return user in userdata ? userdata[user].username : user;
+                    return user in heros ? heros[user].username : user;
                 });
         }
     },

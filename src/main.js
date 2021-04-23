@@ -30,7 +30,7 @@ let startData = {
 					messages: [
 						{
 							timestamp: Date.now(),
-							joinMessage: welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]('Bob'),
+							joinMessage: Math.floor(Math.random() * welcomeMessages.length),
 							userId: 'Bob',
 							id: 0
 						}
@@ -40,7 +40,6 @@ let startData = {
 				store: {
 					title: 'store',
 					type:'store',
-					messages: [],
 					description: "Purchase Upgrades Here"
 				}
 			}
@@ -100,7 +99,7 @@ let startData = {
 			"667109969438441486"
 		]
 	},
-	heros: [],
+	heros: {},
 	users: {
 		"Bob": true
 	},
@@ -145,7 +144,12 @@ if (loadedData == null) {
 	loadedData = JSON.parse(JSON.stringify(startData));
 	fixData(loadedData, startData);
 } else {
-	loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
+	try {
+		loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
+	} catch {
+		console.log("Error while parsing save. Starting fresh.");
+		loadedData = JSON.parse(JSON.stringify(startData));
+	}
 	fixData(loadedData, startData);
 	// Update influence values on messages to Decimals
 	for (let category in loadedData.categories) {
