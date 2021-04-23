@@ -3,8 +3,8 @@
     <p class="upgradesHeader">Upgrades Store</p>
     <p class="upgradesCategoryHeader" style="color:var(--color-influence);">Influential Upgrades</p>
     <div class="upgradesGrid">
-      <button v-on:click="logSomething('test1')">Purchase Upgrade 1</button>
-      <button v-on:click="logSomething('test2')">Purchase Upgrade 2</button>
+      <button id="upgrade1" v-on:click="logSomething('test1')">Purchase Upgrade 1</button>
+      <button id="upgrade2" v-on:click="logSomething('test2')">Purchase Upgrade 2</button>
     </div>
     <p class="upgradesCategoryHeader">Upgrade Category 2</p>
     <div class="upgradesGrid">
@@ -16,14 +16,23 @@
 
 <script>
 export default {
-name: "store",
+  name: "store",
   methods: {
     logSomething(x) {
       console.log(x);
-    }
+    },
+   /* mounted() {
+      window.setInterval(function() {
+        if(window.player.influence > new Decimal(100)) {
+
+        }
+      },1000)
+    }*/
   }
 }
+
 //TODO Code to set Upgrade Color based on costs and currency
+
 </script>
 
 <style scoped>
