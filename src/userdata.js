@@ -1,4 +1,4 @@
-export const userdata = {
+export const heros = {
     "350057688182292482": {
         profileImage: "https://cdn.discordapp.com/avatars/350057688182292482/4033eea2a3b4cb76aa7b2cb44fc854bd.webp?size=128",
         username: "TheMKeyHolder",

@@ -8,16 +8,16 @@
                     <div class="role-header">
                         <p>{{ roles[roleID].title }} &#8212; {{ role.length }}</p>
                     </div>
-                    <div v-for="user in role" :key="user" :status="userdata[user].status" class="user" v-on:click="openProfile(user)">
+                    <div v-for="user in role" :key="user" :status="heros[user].status" class="user" v-on:click="openProfile(user)">
                         <div class="user-inner">
                             <div class="avatar">
-                                <img class="pfp" :src="userdata[user].profileImage" :alt="userdata[user].username">
+                                <img class="pfp" :src="heros[user].profileImage" :alt="heros[user].username">
                                 <div class="status"></div>
                             </div>
                             <div class="user-text">
-                                <p class="name" :style="{ color: roles[roleID].color }">{{ userdata[user].username }}</p>
-                                <p class="desc" v-if="userdata[user].playing != null">Playing <strong>{{ userdata[user].playing }}</strong></p>
-                                <p class="desc" v-else-if="userdata[user].customStatus != null">{{ userdata[user].customStatus }}</p>
+                                <p class="name" :style="{ color: roles[roleID].color }">{{ heros[user].username }}</p>
+                                <p class="desc" v-if="heros[user].playing != null">Playing <strong>{{ heros[user].playing }}</strong></p>
+                                <p class="desc" v-else-if="heros[user].customStatus != null">{{ heros[user].customStatus }}</p>
                             </div>
                         </div>
                     </div>
@@ -45,13 +45,13 @@
 </template>
 
 <script>
-import { userdata, roles } from '../userdata.js';
+import { heros, roles } from '../userdata.js';
 
 export default {
     name: 'members-list',
     data() {
         return {
-            userdata,
+            heros,
             roles,
             offset: 0,
             observer: new ResizeObserver(entries => {

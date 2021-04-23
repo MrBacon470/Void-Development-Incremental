@@ -1,7 +1,7 @@
 import { SentimentIntensityAnalyzer } from 'vader-sentiment';
 import nlp from 'compromise';
 import Decimal from './break_eternity.js';
-import { userdata } from './userdata.js';
+import { heros } from './userdata.js';
 
 function startConversation(category, channel, convo, extra) {
 	// If convo is an array, choose a random one
@@ -214,6 +214,10 @@ function sendPlayerMessage(message) {
 	addMessage(category, channel, message);
 }
 
+function getDisplayName(user) {
+	return user in heros ? heros[user].username : user;
+}
+
 // Setup NLP
 window.nlp = nlp;
 // Create list of custom words to include as topics, nouncs, etc.
@@ -379,6 +383,6 @@ const welcomeMessages = [
 	"Hello. Is it [!!{username}!!](usernameOnClick) you're looking for?",
 	"[!!{username}!!](usernameOnClick) has joined. Stay a while and listen!",
 	"Roses are red, violets are blue, [!!{username}!!](usernameOnClick) joined this server with you",
-].map(message => id => message.replaceAll('[!!{username}!!](usernameOnClick)', `<b>${id in userdata ? userdata[id].username : id}</b>`));
+].map(message => id => message.replaceAll('[!!{username}!!](usernameOnClick)', `<b>${getDisplayName(id)}</b>`));
 
 export { startConversation, updateConversations, sendPlayerMessage, conversations, welcomeMessages, addJoinMessage };

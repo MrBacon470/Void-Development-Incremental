@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { userdata, roles } from '../userdata.js';
+import { heros, roles } from '../userdata.js';
 import { welcomeMessages } from '../conversations.js';
 
 export default {
@@ -36,13 +36,13 @@ export default {
     },
     computed: {
         username() {
-            return this.message.userId in userdata ? userdata[this.message.userId].username : this.message.userId;
+            return this.message.userId in heros ? heros[this.message.userId].username : this.message.userId;
         },
         profileImage() {
-            return this.message.userId in userdata ? userdata[this.message.userId].profileImage : '';
+            return this.message.userId in heros ? heros[this.message.userId].profileImage : '';
         },
         roleColor() {
-            return this.message.userId in userdata ? roles[userdata[this.message.userId].role].color : 'white';
+            return this.message.userId in heros ? roles[heros[this.message.userId].role].color : 'white';
         },
         timestamp() {
             return new Date(this.message.timestamp);

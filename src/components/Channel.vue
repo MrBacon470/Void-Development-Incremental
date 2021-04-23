@@ -46,7 +46,7 @@ import Message from './Message.vue';
 import Welcome from './Welcome.vue';
 import store from './Store.vue';
 import { sendPlayerMessage, conversations } from '../conversations.js';
-import { userdata } from '../userdata.js';
+import { heros } from '../userdata.js';
 import Store from "@/components/Store";
 
 export default {
@@ -98,7 +98,7 @@ export default {
                 .map(c => {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];
                     const user = c.users[nextMessage.user];
-                    return user in userdata ? userdata[user].username : user;
+                    return user in heros ? heros[user].username : user;
                 });
         }
     },
