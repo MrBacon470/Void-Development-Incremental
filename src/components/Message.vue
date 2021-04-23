@@ -48,7 +48,7 @@ export default {
             return new Date(this.message.timestamp);
         },
         content() {
-            return this.message.content || welcomeMessages[this.message.joinMessage](this.message.userId);
+            return this.message.content || welcomeMessages[this.message.joinMessage] && welcomeMessages[this.message.joinMessage](this.message.userId);
         }
     },
     props: [

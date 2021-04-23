@@ -93,7 +93,7 @@ export default {
                 .filter(c => c.category === category && c.channel === channel)
                 .filter(c => {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];
-                    return nextMessage.type === 'user' && (nextMessage.delay || 1) < c.progress;
+                    return nextMessage && nextMessage.type === 'user' && (nextMessage.delay || 1) < c.progress;
                 })
                 .map(c => {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];

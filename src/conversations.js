@@ -93,7 +93,7 @@ function updateConversations(delta) {
 					nextMessage.run();
 				}
 
-				if (activeConvo.nextMessage >= convo.messages.length) {
+				if (activeConvo.nextMessage < 0 || activeConvo.nextMessage >= convo.messages.length) {
 					// No more messages left, remove the conversation
 					window.player.activeConvos.splice(index, 1);
 				}
@@ -314,7 +314,7 @@ const genericNounConversations = [
 		messages: [
 			{ type: 'user', user: 0, content() { return `${this.noun}? I love ${this.noun}!` } },
 			{ type: 'user', user: 1, content() { return `Pssh, ${this.noun} is so overrated. Get something new to like` }, delay: 2 },
-			{ type: 'player', optional: true, delay: 10, isValid: (convo, message) => nlp(message.content).match(convo.noun).found, nlpType: 'sentiment', positive: 3, negative: { goto: 4, influence: -1 } },
+			{ type: 'player', optional: true, delay: 10, isValid: (convo, message) => nlp(message.content).match(convo.noun).found, nlpType: 'sentiment', positive: 3, negative: { goto: 4, influence: -1 }, goto: -1 },
 			{ type: 'user', user: 0, content() { return `THANK YOU void, finally someone understands` }, delay: 3, influence: 1, goto: -1 },
 			{ type: 'user', user: 0, content() { return `jfc void, come on.` }, delay: 2 },
 			{ type: 'user', user: 1, content() { return `lmao get trolled void and ${getDisplayName(this.users[0])}` }, delay: 2 }
