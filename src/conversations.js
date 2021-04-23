@@ -75,6 +75,10 @@ function updateConversations(delta) {
 
 		if (nextMessage.type === 'user' || (nextMessage.type === 'player' && nextMessage.optional)) {
 			activeConvo.progress += delta;
+			if (typeof nextMessage.content === 'function') {
+				nextMessage = Object.assign({}, nextMessage);
+				nextMessage.content = nextMessage.content.call(activeConvo);
+			}
 
 			let delay = nextMessage.delay || 1;
 			if (nextMessage.typingDuration || nextMessage.content) {
@@ -82,10 +86,6 @@ function updateConversations(delta) {
 			}
 			if (activeConvo.progress >= delay) {
 				// Time to show next message
-				if (typeof nextMessage.content === 'function') {
-					nextMessage = Object.assign({}, nextMessage);
-					nextMessage.content = nextMessage.content.call(activeConvo);
-				}
 				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[nextMessage.user]);
 				activeConvo.progress = 0;
 				activeConvo.nextMessage = nextMessage.goto != null ? nextMessage.goto : activeConvo.nextMessage + 1;
