@@ -159,8 +159,8 @@ function addMessage(category, channel, message, sender) {
 	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
 
 	// Have chance to start new convo if message wasn't part of existing one
-	if (Math.random() < (1 / (window.player.activeConvos.length + 2))) {
-		const cleaned = nlp(content?.replaceAll(/[>#@]\w*/g, '')).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
+	if (category !== 'DMs' && content && Math.random() < (1 / (window.player.activeConvos.length + 2))) {
+		const cleaned = nlp(content.replaceAll(/[>#@]\w*/g, '')).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
 		// TODO parse message for specific topics
 		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
 		if (heatedTopics.length > 0) {
