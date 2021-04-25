@@ -176,7 +176,7 @@ export default {
     content: "";
     position: absolute;
     display: block;
-    bottom: -1px;
+    bottom: 1px;
     left: 0;
     right: 0;
     height: 1px;

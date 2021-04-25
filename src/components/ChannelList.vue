@@ -57,6 +57,9 @@ export default {
         },
         switchChannel(category, channel) {
             this.player.activeChannel = { category, channel };
+            if (this.player.activeChannel.category != "DMs") {
+                this.player.categories[this.player.activeChannel.category].channels[this.player.activeChannel.channel].ping = false;
+            }
         }
     }
 }
@@ -84,7 +87,7 @@ export default {
     content: "";
     position: absolute;
     display: block;
-    bottom: -1px;
+    bottom: 1px;
     left: 0;
     right: 0;
     height: 1px;
