@@ -41,8 +41,9 @@ export default {
     flex-start: left;
     height: calc(100vh - 3em);
     display: flex;
-    background-color: var(--background-secondary);
     flex-direction: column;
+    padding-left: 2em;
+    padding-right: 2em;
   }
   .upgradesGrid {
     display: flex;
@@ -60,9 +61,23 @@ export default {
     margin-bottom: 0.5em;
   }
   .unpurchasable {
-    color: red;
+    color: var(--color-unpurchasable);
   }
   .purchasable {
-    color: green;
+    color: var(--color-purchasable);
+  }
+
+  .upgradesGrid button {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    border-radius: 0.5em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    background-color: var(--background-secondary);
+  }
+  .upgradesGrid button:hover {
+    background-color: var(--background-secondary-modifier-hover);
   }
 </style>

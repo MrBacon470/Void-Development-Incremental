@@ -71,9 +71,16 @@ function getWeight(convoId) {
 	return Math.max(weight == null ? 1 : weight, 0);
 }
 
+function smallChatSlowdown() {
+	let total_users = 1 + Object.keys(window.player.heros).length + Object.keys(window.player.users).length;
+	return 1 + 60 / Math.pow(total_users, 0.6);
+}
+
 let randomTopicProgress = 0;
 let randomMod = Math.random();
 function updateConversations(delta) {
+	delta /= smallChatSlowdown();
+	
 	for (let index = window.player.activeConvos.length - 1; index >= 0; index--) {
 		let activeConvo = window.player.activeConvos[index];
 		const convo = conversations[activeConvo.convoId];
