@@ -92,7 +92,7 @@ export const heros = {
     },
     "712738568442871849": {
         profileImage: "avatars/bef0d98e4bcc9aec4944455efa25b24d.png",
-        username: "unp©gged™",
+        username: "unpogged",
         role: "staff-helper",
         status: "Offline",
         customStatus: ''
@@ -103,6 +103,13 @@ export const heros = {
         role: "contributor",
         status: "Online",
         customStatus: ''
+    },
+    "416292383374835723": {
+        profileImage: "avatars/54418eb8941ede85078da6b564295c16.png",
+        username: "CoolRadGamer",
+        role: "contributor",
+        status: "Online",
+        customStatus: "PT is killing DI"
     }
 };
 
