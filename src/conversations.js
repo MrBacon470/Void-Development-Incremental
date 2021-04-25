@@ -168,7 +168,7 @@ function addMessage(category, channel, message, sender) {
 			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
 			const heat = 2 - sentiment.compound;
 			const activeConvo = startConversation(category, channel, 'heatedArgument', { topic: nlp(topic).match('#Uncountable').found ? topic : nlp(topic).nouns().toPlural().text(), heat });
-			wiki()
+			wiki({ apiUrl: "https://en.wikipedia.org/w/api.php" })
 				.page(topic)
 				.then(page => Promise.all([page.content(), page.summary()]))
 				.then(([ content, summary ]) => {
@@ -479,7 +479,7 @@ const genericNounConversations = [
 	{
 		init() {
 			console.log(this.noun);
-			wiki()
+			wiki({ apiUrl: "https://en.wikipedia.org/w/api.php" })
 				.page(this.noun)
 				.then(page => Promise.all([page.content(), page.summary()]))
 				.then(([content, summary]) => {
