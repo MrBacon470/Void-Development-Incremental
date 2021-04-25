@@ -127,7 +127,7 @@ function updateConversations(delta) {
 
 	// Add new topics randomly, based on how many active conversations there already are
 	if (window.player.activeChannel.category !== 'DMs' && window.player.activeChannel.channel !== 'Bob') {
-		randomTopicProgress += delta / 30;
+		randomTopicProgress += delta / 6;
 		if (randomMod < randomTopicProgress / (1 + window.player.activeConvos.length)) {
 			randomTopicProgress = 0;
 			startConversation("general", "general", Object.keys(nothingConversations));
@@ -156,6 +156,36 @@ function addMessage(category, channel, message, sender) {
 	}
 	const id = window.player.nextMessageId++;
 	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
+
+	// Have chance to start new convo if message wasn't part of existing one
+	if (Math.random() < (1 / (window.player.activeConvos.length + 2))) {
+		const cleaned = nlp(message.content).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
+		// TODO parse message for specific topics
+		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
+		if (heatedTopics.length > 0) {
+			const topic = heatedTopics[Math.floor(Math.random() * heatedTopics.length)];
+			const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
+			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
+			const heat = 2 - sentiment.compound;
+			const activeConvo = startConversation(category, channel, 'heatedArgument', { topic: nlp(topic).match('#Uncountable').found ? topic : nlp(topic).nouns().toPlural().text(), heat });
+			wiki()
+				.page(topic)
+				.then(page => Promise.all([page.content(), page.summary()]))
+				.then(([ content, summary ]) => {
+					activeConvo.content = content.filter(c => c.content && c.title !== "External links").map(c => c.content.replace(/[^\x20-\x7F]/g, ""));
+					activeConvo.summary = nlp(summary).sentences().first(2).text();
+					activeConvo.summary = activeConvo.summary.replace(/[^\x20-\x7F]/g, "");
+				})
+				.catch(console.error);
+		} else {
+			const nouns = cleaned.nouns().not('(#Plural|#Heated)').out('array');
+			if (nouns.length > 0) {
+				startConversation(category, channel, Object.keys(genericNounConversations).filter(id => !window.player.activeConvos.some(c => c.convoId === id)), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
+			} else {
+				console.log("No conversation found for " + message.content);
+			}
+		}
+	}
 }
 
 // Utility function for creating a single-message conversation
@@ -244,36 +274,6 @@ function sendPlayerMessage(message) {
 			// TODO other types of player response requests, using the "compromise" package
 		}
 	});
-
-	// Have chance to start new convo if message wasn't part of existing one
-	if (!foundConvo && Math.random() < (1 / (window.player.activeConvos.length + 1))) {
-		const cleaned = nlp(message.content).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
-		// TODO parse message for specific topics
-		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
-		if (heatedTopics.length > 0) {
-			const topic = heatedTopics[Math.floor(Math.random() * heatedTopics.length)];
-			const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
-			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
-			const heat = 2 - sentiment.compound;
-			const activeConvo = startConversation(category, channel, 'heatedArgument', { topic: nlp(topic).match('#Uncountable').found ? topic : nlp(topic).nouns().toPlural().text(), heat });
-			wiki()
-				.page(topic)
-				.then(page => Promise.all([page.content(), page.summary()]))
-				.then(([ content, summary ]) => {
-					activeConvo.content = content.filter(c => c.content && c.title !== "External links").map(c => c.content.replace(/[^\x20-\x7F]/g, ""));
-					activeConvo.summary = nlp(summary).sentences().first(2).text();
-					activeConvo.summary = activeConvo.summary.replace(/[^\x20-\x7F]/g, "");
-				})
-				.catch(console.error);
-		} else {
-			const nouns = cleaned.nouns().not('(#Plural|#Heated)').out('array');
-			if (nouns.length > 0) {
-				startConversation(category, channel, Object.keys(genericNounConversations), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
-			} else {
-				console.log("No conversation found for " + message.content);
-			}
-		}
-	}
 
 	addMessage(category, channel, message);
 }
@@ -395,6 +395,12 @@ const polarArguments = [
 // Right now that might happen only if the player responds
 // TODO allow these to start topic-related conversations with same chance as player messages
 const nothingConversations = [
+	'I love shooting guns in my backyard',
+	'Lowkey think vaccines are bad',
+	'Did anyone else smoke some dank marijuana for 4/20?',
+	'Immigration = ???. Discuss.',
+	'God I hate Donald Trump, so glad he\'s gone',
+	'Cancel culture is the worst',
 	'Can we send memes in #general?',
 	'Howdy :texas:',
 	'Are hotdogs considered sandwiches?',
@@ -466,7 +472,7 @@ const genericNounConversations = [
 	},
 	{
 		messages: [
-			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${this.noun} but then I realized it's actually really easy to like` } }
+			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${nlp(this.noun).nouns().toPlural().text()} but then I realized they're actually really easy to like` } }
 		],
 		users: [ {} ]
 	},
