@@ -52,7 +52,7 @@ let startData = {
 					title: 'general',
 					type: 'text',
 					description: "This is where you talk about things | Be nice :)",
-					ping: true,
+					ping: false,
 					messages: []
 				}
 			}

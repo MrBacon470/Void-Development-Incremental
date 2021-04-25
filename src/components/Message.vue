@@ -1,24 +1,27 @@
 <template>
 <div :class="{ message: true, first: message.first }">
-    <img class="pfp" v-if="message.first && profileImage" :src="profileImage" :alt="username">
-    <div class="pfp fa fa-user" v-else-if="message.first" :style="{ backgroundColor: pickColor(message.userId) }"></div>
-    <p class="name" :style="{ color: roleColor }">{{ username }}
-        <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
-        <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
-        <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
-    </p>
-    <p class="text welcome" v-if="message.joinMessage != null">
-        <i class="fa fa-arrow-right" />
-        <span v-html="content"></span>
-        <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
-        <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
-        <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
-    </p>
-    <p class="text" v-else>{{ content }}<span v-if="message.influence" :class="{
-        'change-influence': true,
-        gain: message.influence.gt(0),
-        loss: message.influence.lt(0)
-    }">{{ message.influence.abs() | numberFormatWhole }} influence</span></p>
+    <div class="message-inner">
+        <img class="pfp" v-if="message.first && profileImage" :src="profileImage" :alt="username">
+        <div class="pfp fa fa-user" v-else-if="message.first" :style="{ backgroundColor: pickColor(message.userId) }"></div>
+        <p class="short-timestamp" v-if="!message.first">{{ timeFormat.format(timestamp) }}</p>
+        <p class="name" :style="{ color: roleColor }">{{ username }}
+            <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
+            <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
+            <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
+        </p>
+        <p class="text welcome" v-if="message.joinMessage != null">
+            <i class="fa fa-arrow-right" />
+            <span v-html="content"></span>
+            <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
+            <span class="timestamp" v-else-if="isYesterday(timestamp)">Yesterday at {{ timeFormat.format(timestamp) }}</span>
+            <span class="timestamp" v-else>{{ dateFormat.format(timestamp) }}</span>
+        </p>
+        <p class="text" v-else>{{ content }}<span v-if="message.influence" :class="{
+            'change-influence': true,
+            gain: message.influence.gt(0),
+            loss: message.influence.lt(0)
+        }">{{ message.influence.abs() | numberFormatWhole }} influence</span></p>
+    </div>
 </div>
 </template>
 
@@ -80,7 +83,7 @@ export default {
 </script>
 
 <style>
-.message {
+.message .message-inner {
     padding-left: 4.5em;
     padding-right: 1em;
     padding-top: 0.2em;
@@ -88,10 +91,10 @@ export default {
     margin-right: 1em;
     position: relative;
 }
-.message.first {
-    padding-top: 1.2em;
+.message.first .message-inner {
+    margin-top: 1em;
 }
-.message:hover {
+.message .message-inner:hover {
     background-color: var(--background-message-hover);
 }
 .message .pfp {
@@ -119,6 +122,20 @@ export default {
     margin-left: 0.5em;
     color: var(--text-muted);
     white-space: nowrap;
+}
+.message .short-timestamp {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    text-align: center;
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6em;
+    display: none;
+}
+.message:hover .short-timestamp {
+    display: block;
 }
 .text {
     line-height: 1.375em;

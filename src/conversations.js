@@ -157,6 +157,10 @@ function addMessage(category, channel, message, sender) {
 	const id = window.player.nextMessageId++;
 	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
 
+	if (category != "DMs" && window.player.activeChannel.category != category || window.player.activeChannel.channel != channel) {
+		window.player.categories[category].channels[channel].ping = true;
+	}
+
 	// Have chance to start new convo if message wasn't part of existing one
 	if (Math.random() < (1 / (window.player.activeConvos.length + 2))) {
 		const cleaned = nlp(message.content).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
