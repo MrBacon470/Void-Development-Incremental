@@ -92,7 +92,7 @@ export const heros = {
     },
     "712738568442871849": {
         profileImage: "avatars/bef0d98e4bcc9aec4944455efa25b24d.png",
-        username: "unp©gged™",
+        username: "unpogged",
         role: "staff-helper",
         status: "Offline",
         customStatus: ''
