@@ -140,6 +140,7 @@ function addMessage(category, channel, message, sender) {
 	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
 	// Duplicate message and strip out unnecessary data
 	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
+	content = content.replace(/[^\x20-\x7F]/g, "");
 	userId = sender || userId;
 	timestamp = timestamp || Date.now();
 	first = content && (messages.length === 0 ||
@@ -172,9 +173,9 @@ function addMessage(category, channel, message, sender) {
 				.page(topic)
 				.then(page => Promise.all([page.content(), page.summary()]))
 				.then(([ content, summary ]) => {
-					activeConvo.content = content.filter(c => c.content && c.title !== "External links").map(c => c.content.replace(/[^\x20-\x7F]/g, ""));
+					activeConvo.content = content.filter(c => c.content && c.title !== "External links");
 					activeConvo.summary = nlp(summary).sentences().first(2).text();
-					activeConvo.summary = activeConvo.summary.replace(/[^\x20-\x7F]/g, "");
+					activeConvo.summary = activeConvo.summary;
 				})
 				.catch(console.error);
 		} else {
@@ -484,7 +485,7 @@ const genericNounConversations = [
 				.then(page => Promise.all([page.content(), page.summary()]))
 				.then(([content, summary]) => {
 					const contents = [...content.filter(c => c.content && c.title !== "External links").map(c => c.content), summary];
-					this.content = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text().replace(/[^\x20-\x7F]/g, "");
+					this.content = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text();
 				})
 				.catch(console.error);
 		},
