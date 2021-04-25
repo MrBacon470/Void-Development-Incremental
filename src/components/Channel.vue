@@ -62,19 +62,21 @@ export default {
         }
     },
     mounted() {
-        this.$refs.input.focus();
-        this.$refs.scroll.scrollToBottom();
+        if (this.channel.type !== 'store') {
+            this.$refs.input.focus();
+            this.$refs.scroll.scrollToBottom();
+        }
     },
     watch: {
         channel: {
             handler(newVal, oldVal) {
-                const scroll = this.$refs.scroll.$el;
                 if (newVal !== oldVal && this.channel.type === 'text') {
                     this.$nextTick(() => {
                         this.$refs.input.focus();
                         this.$refs.scroll.scrollToBottom();
                     });
                 }
+                const scroll = this.$refs.scroll?.$el;
                 if (newVal === oldVal && Math.abs(scroll.scrollTop + scroll.offsetHeight - scroll.scrollHeight) < 50) {
                     this.scrollingToBottom = true;
                 }
@@ -107,7 +109,7 @@ export default {
         }
     },
     updated() {
-        if (this.scrollingToBottom) {
+        if (this.scrollingToBottom && this.channel.type !== 'store') {
             this.$nextTick(() => this.$refs.scroll.scrollToBottom());
             this.scrollingToBottom = false;
         }
