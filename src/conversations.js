@@ -127,7 +127,7 @@ function updateConversations(delta) {
 
 	// Add new topics randomly, based on how many active conversations there already are
 	if (window.player.activeChannel.category !== 'DMs' && window.player.activeChannel.channel !== 'Bob') {
-		randomTopicProgress += delta / 6;
+		randomTopicProgress += delta / 30;
 		if (randomMod < randomTopicProgress / (1 + window.player.activeConvos.length)) {
 			randomTopicProgress = 0;
 			startConversation("general", "general", Object.keys(nothingConversations));
@@ -477,8 +477,25 @@ const genericNounConversations = [
 		users: [ {} ]
 	},
 	{
+		init() {
+			console.log(this.noun);
+			wiki()
+				.page(this.noun)
+				.then(page => Promise.all([page.content(), page.summary()]))
+				.then(([content, summary]) => {
+					const contents = [...content.filter(c => c.content && c.title !== "External links").map(c => c.content), summary];
+					this.content = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text().replace(/[^\x20-\x7F]/g, "");
+				})
+				.catch(console.error);
+		},
 		messages: [
-			{ type: 'user', user: 0, content() { return `oh man me and ${getDisplayName(this.users[1])} were just discussing this. Right @${getDisplayName(this.users[1])}?` } },
+			{ type: 'user', user: 0, content() { return this.content ? `I looked up ${this.noun} on wikipedia and you won't believe what it said: ${this.content}` : `I've actually been meaning to do some research on ${this.noun}` }, delay: 10, typingDuration: 3 }
+		],
+		users: [ {} ]
+	},
+	{
+		messages: [
+			{ type: 'user', user: 0, content() { return `oh man me and ${getDisplayName(this.users[1])} were just discussing ${this.noun}. Right @${getDisplayName(this.users[1])}?` } },
 			{ type: 'user', user: 1, content() { return `who pinged me?` }, delay: 20 },
 			{ type: 'user', user: 0, content() { return `me. Do you remember us talking about ${this.noun}?` } },
 			{ type: 'user', user: 1, content() { return `no lol` } }
@@ -538,7 +555,9 @@ const conversations = {
 			createArgument(function() { return `i like people that like ${this.topic} and i dislike people who dislike ${this.topic}`; }, { heat: -1 }),
 			createArgument(function() { return `i dislike people that like ${this.topic} and i like people who dislike ${this.topic}`; }, { heat: -1 }),
 			createArgument(function() { return `The more I've thought about it the more I've really liked ${this.topic}`; }),
-			createArgument(function() { return `${this.topic} is so bad i'm going to start a rant about how bad it is by pinging everyone`; }, { stress: 1, heat: 1 })
+			createArgument(function() { return `${this.topic} is so bad i'm going to start a rant about how bad it is by pinging everyone`; }, { stress: 1, heat: 1 }),
+			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with that?` : `Tell us how you really feel, ${getDisplayName(this.users[this.lastUser])}`; }),
+			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with that?` : `I'm not sure I see your point ${getDisplayName(this.users[this.lastUser])} lol`; }, { heat: -1 })
 		],
 		users: [ {}, {} ]
 	}
