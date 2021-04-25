@@ -103,6 +103,13 @@ export const heros = {
         role: "contributor",
         status: "Online",
         customStatus: ''
+    },
+    "416292383374835723": {
+        profileImage: "avatars/54418eb8941ede85078da6b564295c16.png",
+        username: "CoolRadGamer",
+        role: "contributor"
+        status: "Online",
+        customStatus: "PT is killing DI"
     }
 };
 
