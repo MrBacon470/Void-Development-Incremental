@@ -140,7 +140,7 @@ function addMessage(category, channel, message, sender) {
 	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
 	// Duplicate message and strip out unnecessary data
 	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
-	content = content.replace(/[^\x20-\x7F]/g, "");
+	content = content?.replaceAll(/[^\x20-\x7F]/g, "");
 	userId = sender || userId;
 	timestamp = timestamp || Date.now();
 	first = content && (messages.length === 0 ||
@@ -159,11 +159,11 @@ function addMessage(category, channel, message, sender) {
 	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
 
 	// Have chance to start new convo if message wasn't part of existing one
-	if (Math.random() < (1 / (window.player.activeConvos.length + 2))) {
-		const cleaned = nlp(message.content).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
+	if (category !== 'DMs' && content && Math.random() < (1 / (window.player.activeConvos.length + 2))) {
+		const cleaned = nlp(content.replaceAll(/[>#@]\w*/g, '')).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
 		// TODO parse message for specific topics
 		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
-		if (heatedTopics.length > 0) {
+		if (heatedTopics.length > 0 && Object.keys(window.player.heros).length + window.player.sortedUsers.length > conversations.heatedArgument.users.length) {
 			const topic = heatedTopics[Math.floor(Math.random() * heatedTopics.length)];
 			const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
 			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
@@ -173,12 +173,12 @@ function addMessage(category, channel, message, sender) {
 				.page(topic)
 				.then(page => Promise.all([page.content(), page.summary()]))
 				.then(([ content, summary ]) => {
-					activeConvo.content = content.filter(c => c.content && c.title !== "External links");
+					activeConvo.wikiContent = content.filter(c => c.content && !ignoredSections.includes(c.title)).map(c => nlp(c.content).sentences().first(3).text());
 					activeConvo.summary = nlp(summary).sentences().first(2).text();
 				})
 				.catch(console.error);
 		} else {
-			const nouns = cleaned.nouns().not('(#Plural|#Heated)').out('array');
+			const nouns = cleaned.nouns().not('(#Plural|#Heated|#Uncountable)').out('array');
 			if (nouns.length > 0) {
 				startConversation(category, channel, Object.keys(genericNounConversations).filter(id => !window.player.activeConvos.some(c => c.convoId === id)), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
 			} else {
@@ -342,6 +342,12 @@ function findNextMessage(activeConvo) {
 	activeConvo.nextUser = (pro ? activeConvo.usersFor : activeConvo.usersAgainst)[Math.floor(Math.random() * (pro ? activeConvo.usersFor : activeConvo.usersAgainst).length)];
 }
 
+const ignoredSections = [
+	"External links",
+	"See also",
+	"Further reading"
+];
+
 // Setup NLP
 window.nlp = nlp;
 nlp.extend((Doc, world) => {
@@ -365,6 +371,9 @@ nlp.extend((Doc, world) => {
 		nintendo: 'Company',
 		'dungeons and dragons': 'Noun',
 		'd&d': 'Noun',
+		teleport: 'Verb',
+		ngl: 'Acronym',
+		pssh: 'Interjection',
 		religion: ['Heated', 'Singular'],
 		christianity: ['Heated', 'Uncountable'],
 		systems: ['Heated', 'Plural'],
@@ -395,6 +404,7 @@ const polarArguments = [
 // Right now that might happen only if the player responds
 // TODO allow these to start topic-related conversations with same chance as player messages
 const nothingConversations = [
+	'Why do systems have to be so annoying?',
 	'I love shooting guns in my backyard',
 	'Lowkey think vaccines are bad',
 	'Did anyone else smoke some dank marijuana for 4/20?',
@@ -478,18 +488,17 @@ const genericNounConversations = [
 	},
 	{
 		init() {
-			console.log(this.noun);
 			wiki({ apiUrl: "https://en.wikipedia.org/w/api.php" })
 				.page(this.noun)
 				.then(page => Promise.all([page.content(), page.summary()]))
 				.then(([content, summary]) => {
-					const contents = [...content.filter(c => c.content && c.title !== "External links").map(c => c.content), summary];
-					this.content = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text();
+					const contents = [...content.filter(c => c.content && !ignoredSections.includes(c.title)).map(c => c.content), summary];
+					this.wikiContent = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text();
 				})
 				.catch(console.error);
 		},
 		messages: [
-			{ type: 'user', user: 0, content() { return this.content ? `I looked up ${this.noun} on wikipedia and you won't believe what it said: ${this.content}` : `I've actually been meaning to do some research on ${this.noun}` }, delay: 10, typingDuration: 3 }
+			{ type: 'user', user: 0, content() { return this.wikiContent ? `I looked up ${this.noun} on wikipedia and you won't believe what it said: ${this.wikiContent}` : `I've actually been meaning to do some research on ${this.noun}` }, delay: 10, typingDuration: 3 }
 		],
 		users: [ {} ]
 	},
@@ -548,16 +557,16 @@ const conversations = {
 			createArgument(function() { return `Oh, we're talking about ${this.topic}? I might need to mute this channel ngl`; }, { heat: -1 }),
 			createArgument(function() { return `for what it's worth, I personally like ${this.topic} a lot`; }),
 			createArgument(function() { return `ugh I can't believe people are actually defending ${this.topic}`; }, { heat: 1 }),
-			createArgument(function() { return this.content ? `I looked it up, and apparently "${nlp(this.content[Math.floor(Math.random() * this.content.length)]).sentences().first(3).text()}"` : "Someone should look into this, I don't think any of us know what we're talking about"; }),
-			createArgument(function() { return this.content ? `I looked it up, and apparently "${nlp(this.content[Math.floor(Math.random() * this.content.length)]).sentences().first(3).text()}"` : "Someone should look into this, I don't think any of us know what we're talking about"; }),
-			createArgument(function() { return this.summary ? `Did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
-			createArgument(function() { return this.summary ? `Did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
+			createArgument(function() { return this.wikiContent ? `I looked up ${this.topic}, and apparently "${this.wikiContent[Math.floor(Math.random() * this.wikiContent.length)]}"` : `Someone should look into ${this.topic}, I don't think any of us know what we're talking about`; }),
+			createArgument(function() { return this.wikiContent ? `I looked up ${this.topic}, and apparently "${this.wikiContent[Math.floor(Math.random() * this.wikiContent.length)]}"` : `Someone should look into ${this.topic}, I don't think any of us know what we're talking about`; }),
+			createArgument(function() { return this.summary ? `Speaking of ${this.topic}, did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
+			createArgument(function() { return this.summary ? `Speaking of ${this.topic}, did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
 			createArgument(function() { return `i like people that like ${this.topic} and i dislike people who dislike ${this.topic}`; }, { heat: -1 }),
 			createArgument(function() { return `i dislike people that like ${this.topic} and i like people who dislike ${this.topic}`; }, { heat: -1 }),
 			createArgument(function() { return `The more I've thought about it the more I've really liked ${this.topic}`; }),
 			createArgument(function() { return `${this.topic} is so bad i'm going to start a rant about how bad it is by pinging everyone`; }, { stress: 1, heat: 1 }),
-			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with that?` : `Tell us how you really feel, ${getDisplayName(this.users[this.lastUser])}`; }),
-			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with that?` : `I'm not sure I see your point ${getDisplayName(this.users[this.lastUser])} lol`; }, { heat: -1 })
+			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with me on ${this.topic}?` : `Tell us how you really feel about ${this.topic}, ${getDisplayName(this.users[this.lastUser])}`; }),
+			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with me on ${this.topic}?` : `I'm not sure I see your point about ${this.topic} ${getDisplayName(this.users[this.lastUser])} lol`; }, { heat: -1 })
 		],
 		users: [ {}, {} ]
 	}
