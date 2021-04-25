@@ -133,12 +133,7 @@ button:disabled {
 }
 
 ::-webkit-scrollbar {
-    width: .5em;
-    position: fixed;
-}
-:hover::-webkit-scrollbar {
     width: 1em;
-    margin-left: -.5em;
 }
 
 ::-webkit-scrollbar-track {

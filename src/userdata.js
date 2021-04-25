@@ -1,92 +1,106 @@
 export const heros = {
     "350057688182292482": {
-        profileImage: "https://cdn.discordapp.com/avatars/350057688182292482/4033eea2a3b4cb76aa7b2cb44fc854bd.webp?size=128",
+        profileImage: "avatars/4033eea2a3b4cb76aa7b2cb44fc854bd.png",
         username: "TheMKeyHolder",
         role: 'contributor',
         status: "Online",
         playing: "OM:R"
     },
     "667109969438441486": {
-        profileImage: "https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128",
+        profileImage: "avatars/d0ce3ad8fb2a3fb06f58982cb0034a5b.png",
         username: "VoidCloud",
         role: 'developer',
         status: "DND",
         playing: "Void Development Incremental"
     },
     "708748287909298318": {
-        profileImage: "https://cdn.discordapp.com/avatars/708748287909298318/eb0ab23ac4f5594022c8c21cce460174.png?size=1024",
+        profileImage: "avatars/eb0ab23ac4f5594022c8c21cce460174.png",
         username: "Flame",
         role: 'staff-admin',
         status: "Online",
         customStatus: ":yellow_small_man_moving_quickly:"
     },
     "543817742487388179": {
-        profileImage: "https://cdn.discordapp.com/avatars/543817742487388179/801863b7b703ca8481108f20fa95bc31.png?size=128",
+        profileImage: "avatars/a_92318f24a5d7f28e9bd89f02fb2bfdba.gif",
         username: "avocado",
         role: 'contributor',
         status: "Online",
         customStatus: "Testing long names"
     },
     "366022305668923402": {
-        profileImage: "https://cdn.discordapp.com/avatars/366022305668923402/2d139cf3e0b984d49fbc24704c3142f9.webp?size=1024",
+        profileImage: "avatars/2d139cf3e0b984d49fbc24704c3142f9.png",
         username: "Kuaka",
         role: 'kuaka-salesman',
         status: "Offline",
         customStatus: "Swag Coin"
     },
     "596115906153807882": {
-        profileImage: "https://cdn.discordapp.com/avatars/596115906153807882/65781bcb0c4eff2f5b2bb545aa5d59fb.webp?size=1024",
+        profileImage: "avatars/65781bcb0c4eff2f5b2bb545aa5d59fb.png",
         username: "Jacorb",
         role: 'staff-admin',
         status: 'Idle',
         customStatus: 'Snoopers gonna snoop'
     },
     "131211055849275392": {
-        profileImage: "https://cdn.discordapp.com/avatars/131211055849275392/f9abf31d943912a5c9899fe8f875c9a0.webp?size=1024",
+        profileImage: "avatars/f9abf31d943912a5c9899fe8f875c9a0.png",
         username: "thepaperpilot",
         role: 'staff-helper',
         status: 'Online',
         playing: 'Sublime Text'
     },
     "296003621009620992": {
-        profileImage: "https://cdn.discordapp.com/avatars/296003621009620992/db13ecbc27a88df332af9db33d437d6c.webp?size=1024",
+        profileImage: "avatars/db13ecbc27a88df332af9db33d437d6c.png",
         username: "Semenar",
         role: 'contributor',
         status: 'Online',
         customStatus: ''
     },
     "607942184167145506": {
-        profileImage: "https://cdn.discordapp.com/avatars/607942184167145506/8f88e5d898c1520aa7c9859b2f27687a.webp?size=1024",
+        profileImage: "avatars/a61a4b8fb66bcb4b991666c79a60dd95.png",
         username: "unpingabot",
         role: 'staff-admin',
         status: 'Online',
         customStatus:''
     },
     "330360353185857567": {
-        profileImage: "https://cdn.discordapp.com/avatars/330360353185857567/f8d0acfe41f6fa157d83e381ec53f6f9.webp?size=1024",
+        profileImage: "avatars/a97604bafd23e442bd8824b7592b92c6.png",
         username: "epicness1582",
         role: 'staff-helper',
         status: 'Online',
         customStatus: "I'm a sneaky snake"
     },
     "752728129126006905": {
-        profileImage: "https://cdn.discordapp.com/avatars/752728129126006905/0b369646bb30492f3644e1a12194aa65.webp?size=1024",
+        profileImage: "avatars/0b369646bb30492f3644e1a12194aa65.png",
         username: "dratini123",
         role: "contributor",
         status: "Online",
         customStatus: ''
     },
     "422117994915954699": {
-        profileImage: "https://cdn.discordapp.com/avatars/422117994915954699/bcf24f8f01923a3190fbf3c0ed6003ca.webp?size=1024",
+        profileImage: "avatars/bcf24f8f01923a3190fbf3c0ed6003ca.png",
         username: "Waddles",
         role: "booster",
         status: "DND",
         customStatus: ''
     },
     "392092706727264256": {
-        profileImage: "https://cdn.discordapp.com/avatars/392092706727264256/6db293b54467f2f5e6126057b6d2c07d.webp?size=1024",
+        profileImage: "avatars/6db293b54467f2f5e6126057b6d2c07d.png",
         username: "rock",
         role: "booster",
+        status: "Online",
+        customStatus: ''
+    },
+    "712738568442871849": {
+        profileImage: "avatars/bef0d98e4bcc9aec4944455efa25b24d.png",
+        username: "unp©gged™",
+        role: "staff-helper",
+        status: "Offline",
+        customStatus: ''
+    },
+    "440441586317393920": {
+        profileImage: "avatars/619a6b95c42ae7e164135069b2bc7b8e.png",
+        username: "ducdat0507",
+        role: "contributor",
         status: "Online",
         customStatus: ''
     }

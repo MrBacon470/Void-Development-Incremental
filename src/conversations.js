@@ -1,4 +1,5 @@
 import { SentimentIntensityAnalyzer } from 'vader-sentiment';
+import wiki from 'wikijs';
 import nlp from 'compromise';
 import Decimal from './break_eternity.js';
 import { heros } from './userdata.js';
@@ -29,10 +30,10 @@ function startConversation(category, channel, convo, extra) {
 	let conversingUsers = Object.keys(window.player.heros).filter(user => {
 		for (let c of window.player.activeConvos) {
 			if (c.users.includes(user)) {
-				return false;
+				return true;
 			}
 		}
-		return true;
+		return false;
 	});
 	conversingUsers = [...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
 	let users = conversations[convo].users.map(u => {
@@ -53,7 +54,12 @@ function startConversation(category, channel, convo, extra) {
 	});
 
 	// Add to list of active conversations
-	window.player.activeConvos.push({ convoId: convo, users, category, channel, nextMessage: 0, progress: 0, ...extra })
+	const activeConvo = { convoId: convo, users, category, channel, nextMessage: 0, progress: 0, ...extra };
+	window.player.activeConvos.push(activeConvo);
+	if (typeof conversations[convo].init === 'function') {
+		conversations[convo].init.call(activeConvo);
+	}
+	return activeConvo;
 }
 
 function getWeight(convoId) {
@@ -75,22 +81,40 @@ function updateConversations(delta) {
 
 		if (nextMessage.type === 'user' || (nextMessage.type === 'player' && nextMessage.optional)) {
 			activeConvo.progress += delta;
-			if (typeof nextMessage.content === 'function') {
+			if (typeof nextMessage.content === 'function' || nextMessage.user === 'function' || typeof nextMessage.typingDuration === 'function') {
 				nextMessage = Object.assign({}, nextMessage);
-				nextMessage.content = nextMessage.content.call(activeConvo);
+				if (typeof nextMessage.content === 'function') {
+					nextMessage.content = nextMessage.content.call(activeConvo);
+				}
+				if (typeof nextMessage.user === 'function') {
+					nextMessage.user = nextMessage.user.call(activeConvo);
+				}
+				if (typeof nextMessage.typingDuration === 'function') {
+					nextMessage.typingDuration = nextMessage.typingDuration.call(activeConvo);
+				}
 			}
 
-			let delay = nextMessage.delay || 1;
+			let delay = nextMessage.delay == null ? 1 : nextMessage.delay;
 			if (nextMessage.typingDuration || nextMessage.content) {
 				delay += nextMessage.typingDuration || (nextMessage.content.length * .05);
 			}
 			if (activeConvo.progress >= delay) {
 				// Time to show next message
-				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[nextMessage.user]);
+				let user = nextMessage.user;
+				if (typeof user === 'function') {
+					user = user.call(activeConvo);
+				}
+				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[user]);
 				activeConvo.progress = 0;
-				activeConvo.nextMessage = nextMessage.goto != null ? nextMessage.goto : activeConvo.nextMessage + 1;
 				if (typeof nextMessage.run === 'function') {
-					nextMessage.run();
+					nextMessage.run.call(activeConvo);
+				}
+				activeConvo.nextMessage = nextMessage.goto != null ? nextMessage.goto : activeConvo.nextMessage + 1;
+				if (nextMessage.heat) {
+					activeConvo.heat += nextMessage.heat;
+				}
+				if (typeof activeConvo.nextMessage === 'function') {
+					activeConvo.nextMessage = activeConvo.nextMessage.call(activeConvo);
 				}
 
 				if (activeConvo.nextMessage < 0 || activeConvo.nextMessage >= convo.messages.length) {
@@ -115,7 +139,7 @@ function updateConversations(delta) {
 function addMessage(category, channel, message, sender) {
 	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
 	// Duplicate message and strip out unnecessary data
-	let { content, first, timestamp, userId, influence, joinMessage } = message;
+	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
 	userId = sender || userId;
 	timestamp = timestamp || Date.now();
 	first = content && (messages.length === 0 ||
@@ -126,8 +150,42 @@ function addMessage(category, channel, message, sender) {
 		influence = new Decimal(influence);
 		window.player.influence = window.player.influence.add(influence);
 	}
+	if (stress) {
+		stress = new Decimal(stress);
+		window.player.stress = window.player.stress.add(stress);
+	}
 	const id = window.player.nextMessageId++;
-	messages.push({ id, content, first, timestamp, userId, influence, joinMessage });
+	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
+
+	// Have chance to start new convo if message wasn't part of existing one
+	if (Math.random() < (1 / (window.player.activeConvos.length + 2))) {
+		const cleaned = nlp(message.content).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
+		// TODO parse message for specific topics
+		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
+		if (heatedTopics.length > 0) {
+			const topic = heatedTopics[Math.floor(Math.random() * heatedTopics.length)];
+			const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
+			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
+			const heat = 2 - sentiment.compound;
+			const activeConvo = startConversation(category, channel, 'heatedArgument', { topic: nlp(topic).match('#Uncountable').found ? topic : nlp(topic).nouns().toPlural().text(), heat });
+			wiki()
+				.page(topic)
+				.then(page => Promise.all([page.content(), page.summary()]))
+				.then(([ content, summary ]) => {
+					activeConvo.content = content.filter(c => c.content && c.title !== "External links").map(c => c.content.replace(/[^\x20-\x7F]/g, ""));
+					activeConvo.summary = nlp(summary).sentences().first(2).text();
+					activeConvo.summary = activeConvo.summary.replace(/[^\x20-\x7F]/g, "");
+				})
+				.catch(console.error);
+		} else {
+			const nouns = cleaned.nouns().not('(#Plural|#Heated)').out('array');
+			if (nouns.length > 0) {
+				startConversation(category, channel, Object.keys(genericNounConversations).filter(id => !window.player.activeConvos.some(c => c.convoId === id)), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
+			} else {
+				console.log("No conversation found for " + message.content);
+			}
+		}
+	}
 }
 
 // Utility function for creating a single-message conversation
@@ -199,6 +257,15 @@ function sendPlayerMessage(message) {
 	window.player.activeConvos.forEach((c, index) => {
 		if (foundConvo) return;
 		if (c.category !== category || c.channel !== channel) return;
+		if (c.topic != null && message.heat) { // heated conversation
+			if (nlp(message.content).match(c.topic).found) {
+				// Modify heat based on sentiment of message
+				// TODO allow other users in the argument to respond to void?
+				const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
+				console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
+				c.heat -= sentiment.compound;
+			}
+		}
 		const nextMessage = conversations[c.convoId].messages[c.nextMessage];
 		if (nextMessage.type === 'player' && (nextMessage.isValid == null || nextMessage.isValid(c, message))) {
 			if (nextMessage.nlpType === 'sentiment') {
@@ -208,18 +275,6 @@ function sendPlayerMessage(message) {
 		}
 	});
 
-	// Have chance to start new convo if message wasn't part of existing one
-	if (!foundConvo && Math.random() < (1 / (window.player.activeConvos.length + 1))) {
-		// TODO parse message for specific topics
-		// TODO if topic is mentioned but not handled uniquely, add generic "are we talking about <topic>? I might have to mute then" or smt
-		const nouns = nlp(message.content, customWords).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent().nouns().not('#Plural').out('array');
-		if (nouns.length > 0) {
-			startConversation(category, channel, Object.keys(genericNounConversations), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
-		} else {
-			console.log("No conversation found for " + message.content);
-		}
-	}
-
 	addMessage(category, channel, message);
 }
 
@@ -227,31 +282,125 @@ function getDisplayName(user) {
 	return user in heros ? heros[user].username : user;
 }
 
+function createArgument(content, extra) {
+	return {
+		type: 'user',
+		user() { return this.nextUser; },
+		goto() { return this.goto; },
+		run: findNextMessage,
+		delay: 0,
+		typingDuration() { return conversations[this.convoId].messages[this.nextMessage].content().length * .05 / Math.max(1, this.heat); },
+		content,
+		...extra
+	};
+}
+
+function findNextMessage(activeConvo) {
+	activeConvo = activeConvo || this;
+
+	if (activeConvo.heat <= 0) {
+		activeConvo.goto = -1;
+		return;
+	}
+
+	const convo = conversations[activeConvo.convoId];
+	const previousMessage = activeConvo.nextMessage;
+	// TODO use heat to match "worse" messages
+	do {
+		activeConvo.goto = Math.floor(Math.random() * convo.messages.length);
+	} while (activeConvo.goto === previousMessage);
+
+	// Add a new user to the argument
+	if (activeConvo.heat > activeConvo.users.length) {
+		let users = Object.keys(window.player.heros).filter(u => {
+			if (activeConvo.users.includes(u)) {
+				return false;
+			}
+			for (let c of window.player.activeConvos) {
+				if (c.users.includes(u)) {
+					return false;
+				}
+			}
+			return true;
+		});
+		if (users.length === 0) {
+			users = Object.keys(window.player.heros).filter(u => !activeConvo.users.includes(u));
+		}
+		if (users.length === 0) {
+			users = Object.keys(window.player.users).filter(u => !activeConvo.users.includes(u));
+		}
+		if (users.length !== 0) {
+			const user = users[Math.floor(Math.random() * users.length)];
+			activeConvo.users.push(user);
+			(activeConvo.usersAgainst.length > activeConvo.usersFor.length ? activeConvo.usersFor : activeConvo.usersAgainst).push(activeConvo.users.length - 1);
+		}
+	}
+
+	// Find user to say the message
+	const pro = activeConvo.goto % 2 === 0;
+	activeConvo.lastUser = activeConvo.nextUser;
+	activeConvo.nextUser = (pro ? activeConvo.usersFor : activeConvo.usersAgainst)[Math.floor(Math.random() * (pro ? activeConvo.usersFor : activeConvo.usersAgainst).length)];
+}
+
 // Setup NLP
 window.nlp = nlp;
-// Create list of custom words to include as topics, nouncs, etc.
-// See list of tags here: https://observablehq.com/@spencermountain/compromise-tags
-// Note that topic are any Person, Place, or Organization (or children within those)
-const customWords = {
-	discord: 'Company',
-	minecraft: 'Noun',
-	mojang: 'Company',
-	unity: 'Noun',
-	photoshop: 'Noun',
-	'id software': 'Company',
-	'square enix': 'Company',
-	'unreal engine': 'Noun',
-	'ue4': 'Noun',
-	nintendo: 'Company',
-	'dungeons and dragons': 'Noun',
-	'd&d': 'Noun'
-}
-window.customWords = customWords;
+nlp.extend((Doc, world) => {
+	world.addTags({
+		Heated: {
+			isA: 'Noun'
+		},
+	});
+	// Create list of custom words to include as topics, nouncs, etc.
+	// See list of tags here: https://observablehq.com/@spencermountain/compromise-tags
+	world.addWords({
+		discord: 'Company',
+		minecraft: 'Noun',
+		mojang: 'Company',
+		unity: 'Noun',
+		photoshop: 'Noun',
+		'id software': 'Company',
+		'square enix': 'Company',
+		'unreal engine': 'Noun',
+		'ue4': 'Noun',
+		nintendo: 'Company',
+		'dungeons and dragons': 'Noun',
+		'd&d': 'Noun',
+		religion: ['Heated', 'Singular'],
+		christianity: ['Heated', 'Uncountable'],
+		systems: ['Heated', 'Plural'],
+		guns: ['Heated', 'Plural'],
+		abortion: ['Heated', 'Singular'],
+		vaccines: ['Heated', 'Plural'],
+		marijuana: ['Heated', 'Uncountable'],
+		immigration: ['Heated', 'Uncountable'],
+		'donald trump': ['Heated', 'LastName'],
+		'cancel culture': ['Heated', 'Uncountable']
+    });
+});
+
+/*
+TODO once we get some more positive conversations lmao
+"we need more <side>"-type messages
+const polarArguments = [
+	["capitalism", "communism"],
+	["evolution", "creationism"],
+	["liberal", "conservative"],
+	["democrat", "republican"],
+	["modernity", "tradition"],
+	["tpt mods", "di mods"]
+]
+*/
 
 // Random messages to send that might stir up a conversation
 // Right now that might happen only if the player responds
 // TODO allow these to start topic-related conversations with same chance as player messages
 const nothingConversations = [
+	'I love shooting guns in my backyard',
+	'Lowkey think vaccines are bad',
+	'Did anyone else smoke some dank marijuana for 4/20?',
+	'Immigration = ???. Discuss.',
+	'God I hate Donald Trump, so glad he\'s gone',
+	'Cancel culture is the worst',
 	'Can we send memes in #general?',
 	'Howdy :texas:',
 	'Are hotdogs considered sandwiches?',
@@ -323,13 +472,30 @@ const genericNounConversations = [
 	},
 	{
 		messages: [
-			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${this.noun} but then I realized it's actually really easy to like` } }
+			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${nlp(this.noun).nouns().toPlural().text()} but then I realized they're actually really easy to like` } }
+		],
+		users: [ {} ]
+	},
+	{
+		init() {
+			console.log(this.noun);
+			wiki()
+				.page(this.noun)
+				.then(page => Promise.all([page.content(), page.summary()]))
+				.then(([content, summary]) => {
+					const contents = [...content.filter(c => c.content && c.title !== "External links").map(c => c.content), summary];
+					this.content = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text().replace(/[^\x20-\x7F]/g, "");
+				})
+				.catch(console.error);
+		},
+		messages: [
+			{ type: 'user', user: 0, content() { return this.content ? `I looked up ${this.noun} on wikipedia and you won't believe what it said: ${this.content}` : `I've actually been meaning to do some research on ${this.noun}` }, delay: 10, typingDuration: 3 }
 		],
 		users: [ {} ]
 	},
 	{
 		messages: [
-			{ type: 'user', user: 0, content() { return `oh man me and ${getDisplayName(this.users[1])} were just discussing this. Right @${getDisplayName(this.users[1])}?` } },
+			{ type: 'user', user: 0, content() { return `oh man me and ${getDisplayName(this.users[1])} were just discussing ${this.noun}. Right @${getDisplayName(this.users[1])}?` } },
 			{ type: 'user', user: 1, content() { return `who pinged me?` }, delay: 20 },
 			{ type: 'user', user: 0, content() { return `me. Do you remember us talking about ${this.noun}?` } },
 			{ type: 'user', user: 1, content() { return `no lol` } }
@@ -362,6 +528,38 @@ const conversations = {
 		users: [
 			'Bob'
 		]
+	},
+	// TODO make arguments support multiple messages to be typed simultaneously
+	heatedArgument: {
+		init() {
+			this.heat = this.heat == null ? this.heat : 2;
+			this.usersFor = this.usersFor || [ 0 ];
+			this.usersAgainst = this.usersAgainst || [ 1 ];
+			this.nextMessage = this.nextMessage || 0;
+			findNextMessage(this);
+			if (this.lastUser == null) {
+				this.lastUser = "667109969438441486";
+			}
+		},
+		messages: [
+			// duplicated arguments are due to having versions for each side of the argument
+			// Even arguments will be said by a "pro" user and odd arguments by an "against" user
+			createArgument(function() { return `Oh, we're talking about ${this.topic}? I might need to mute this channel ngl`; }, { heat: -1 }),
+			createArgument(function() { return `Oh, we're talking about ${this.topic}? I might need to mute this channel ngl`; }, { heat: -1 }),
+			createArgument(function() { return `for what it's worth, I personally like ${this.topic} a lot`; }),
+			createArgument(function() { return `ugh I can't believe people are actually defending ${this.topic}`; }, { heat: 1 }),
+			createArgument(function() { return this.content ? `I looked it up, and apparently "${nlp(this.content[Math.floor(Math.random() * this.content.length)]).sentences().first(3).text()}"` : "Someone should look into this, I don't think any of us know what we're talking about"; }),
+			createArgument(function() { return this.content ? `I looked it up, and apparently "${nlp(this.content[Math.floor(Math.random() * this.content.length)]).sentences().first(3).text()}"` : "Someone should look into this, I don't think any of us know what we're talking about"; }),
+			createArgument(function() { return this.summary ? `Did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
+			createArgument(function() { return this.summary ? `Did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
+			createArgument(function() { return `i like people that like ${this.topic} and i dislike people who dislike ${this.topic}`; }, { heat: -1 }),
+			createArgument(function() { return `i dislike people that like ${this.topic} and i like people who dislike ${this.topic}`; }, { heat: -1 }),
+			createArgument(function() { return `The more I've thought about it the more I've really liked ${this.topic}`; }),
+			createArgument(function() { return `${this.topic} is so bad i'm going to start a rant about how bad it is by pinging everyone`; }, { stress: 1, heat: 1 }),
+			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with that?` : `Tell us how you really feel, ${getDisplayName(this.users[this.lastUser])}`; }),
+			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with that?` : `I'm not sure I see your point ${getDisplayName(this.users[this.lastUser])} lol`; }, { heat: -1 })
+		],
+		users: [ {}, {} ]
 	}
 }
 

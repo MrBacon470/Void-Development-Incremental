@@ -34,7 +34,7 @@
     </div>
     <div class="channel-list-footer">
         <div class="avatar">
-            <img class="pfp" src="https://cdn.discordapp.com/avatars/667109969438441486/8c1305df7b7a59043d71856f1af42419.png?size=128" alt="VoidCloud">
+            <img class="pfp" src="avatars/d0ce3ad8fb2a3fb06f58982cb0034a5b.png" alt="VoidCloud">
             <div class="status"></div>
         </div>
         <div class="data">
