@@ -163,7 +163,7 @@ function addMessage(category, channel, message, sender) {
 		const cleaned = nlp(content.replaceAll(/[>#@]\w*/g, '')).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
 		// TODO parse message for specific topics
 		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
-		if (heatedTopics.length > 0) {
+		if (heatedTopics.length > 0 && Object.keys(window.player.heros).length + window.player.sortedUsers.length > conversations.heatedArgument.users.length) {
 			const topic = heatedTopics[Math.floor(Math.random() * heatedTopics.length)];
 			const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
 			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
