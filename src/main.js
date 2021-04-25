@@ -84,6 +84,7 @@ let startData = {
 		channel: 'Bob'
 	},
 	influence: new Decimal(0),
+	stress: new Decimal(0),
 	autosave: true,
 	timePlayed: 0,
 	currentTime: performance.now(),

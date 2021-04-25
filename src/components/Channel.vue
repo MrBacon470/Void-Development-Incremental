@@ -97,7 +97,11 @@ export default {
                 })
                 .map(c => {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];
-                    const user = c.users[nextMessage.user];
+                    let user = nextMessage.user;
+                    if (typeof user === 'function') {
+                        user = user.call(nextMessage);
+                    }
+                    user = c.users[user];
                     return user in heros ? heros[user].username : user;
                 });
         }
