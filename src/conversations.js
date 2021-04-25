@@ -175,7 +175,6 @@ function addMessage(category, channel, message, sender) {
 				.then(([ content, summary ]) => {
 					activeConvo.content = content.filter(c => c.content && c.title !== "External links");
 					activeConvo.summary = nlp(summary).sentences().first(2).text();
-					activeConvo.summary = activeConvo.summary;
 				})
 				.catch(console.error);
 		} else {
