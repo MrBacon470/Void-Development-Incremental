@@ -140,7 +140,7 @@ function addMessage(category, channel, message, sender) {
 	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
 	// Duplicate message and strip out unnecessary data
 	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
-	content = content.replace(/[^\x20-\x7F]/g, "");
+	content = content?.replaceAll(/[^\x20-\x7F]/g, "");
 	userId = sender || userId;
 	timestamp = timestamp || Date.now();
 	first = content && (messages.length === 0 ||
@@ -160,7 +160,7 @@ function addMessage(category, channel, message, sender) {
 
 	// Have chance to start new convo if message wasn't part of existing one
 	if (Math.random() < (1 / (window.player.activeConvos.length + 2))) {
-		const cleaned = nlp(message.content).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
+		const cleaned = nlp(content?.replaceAll(/[>#@]\w*/g, '')).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
 		// TODO parse message for specific topics
 		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
 		if (heatedTopics.length > 0) {
@@ -178,7 +178,7 @@ function addMessage(category, channel, message, sender) {
 				})
 				.catch(console.error);
 		} else {
-			const nouns = cleaned.nouns().not('(#Plural|#Heated)').out('array');
+			const nouns = cleaned.nouns().not('(#Plural|#Heated|#Uncountable)').out('array');
 			if (nouns.length > 0) {
 				startConversation(category, channel, Object.keys(genericNounConversations).filter(id => !window.player.activeConvos.some(c => c.convoId === id)), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
 			} else {
@@ -365,6 +365,9 @@ nlp.extend((Doc, world) => {
 		nintendo: 'Company',
 		'dungeons and dragons': 'Noun',
 		'd&d': 'Noun',
+		teleport: 'Verb',
+		ngl: 'Acronym',
+		pssh: 'Interjection',
 		religion: ['Heated', 'Singular'],
 		christianity: ['Heated', 'Uncountable'],
 		systems: ['Heated', 'Plural'],
@@ -395,6 +398,7 @@ const polarArguments = [
 // Right now that might happen only if the player responds
 // TODO allow these to start topic-related conversations with same chance as player messages
 const nothingConversations = [
+	'Why do systems have to be so annoying?',
 	'I love shooting guns in my backyard',
 	'Lowkey think vaccines are bad',
 	'Did anyone else smoke some dank marijuana for 4/20?',
