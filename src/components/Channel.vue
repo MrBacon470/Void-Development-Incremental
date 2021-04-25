@@ -99,7 +99,7 @@ export default {
                     const nextMessage = conversations[c.convoId].messages[c.nextMessage];
                     let user = nextMessage.user;
                     if (typeof user === 'function') {
-                        user = user.call(nextMessage);
+                        user = user.call(c);
                     }
                     user = c.users[user];
                     return user in heros ? heros[user].username : user;
