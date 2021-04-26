@@ -76,8 +76,6 @@ function smallChatSlowdown() {
 	return 1 + 60 / Math.pow(total_users, 0.6);
 }
 
-let randomTopicProgress = 0;
-let randomMod = Math.random();
 function updateConversations(delta) {
 	delta /= smallChatSlowdown();
 	
@@ -199,14 +197,6 @@ function addMessage(category, channel, message, sender) {
 	}
 }
 
-// Utility function for creating a single-message conversation
-function singleMessage(msg, userConditions) {
-	return {
-		messages: [ { type: 'user', user: 0, content: msg } ],
-		users: [ userConditions || {} ]
-	}
-}
-
 function handleResponse(convo, message, response) {
 	if (typeof response === "number") {
 		convo.nextMessage = response;
@@ -293,124 +283,6 @@ function getDisplayName(user) {
 	return user in heros ? heros[user].username : user;
 }
 
-function createArgument(content, extra) {
-	return {
-		type: 'user',
-		user() { return this.nextUser; },
-		goto() { return this.goto; },
-		run: findNextMessage,
-		delay: 0,
-		typingDuration() { return conversations[this.convoId].messages[this.nextMessage].content().length * .05 / Math.max(1, this.heat); },
-		content,
-		...extra
-	};
-}
-
-function findNextMessage(activeConvo) {
-	activeConvo = activeConvo || this;
-
-	if (activeConvo.heat <= 0) {
-		activeConvo.goto = -1;
-		return;
-	}
-
-	const convo = conversations[activeConvo.convoId];
-	const previousMessage = activeConvo.nextMessage;
-	// TODO use heat to match "worse" messages
-	do {
-		activeConvo.goto = Math.floor(Math.random() * convo.messages.length);
-	} while (activeConvo.goto === previousMessage);
-
-	// Add a new user to the argument
-	if (activeConvo.heat > activeConvo.users.length) {
-		let users = Object.keys(window.player.heros).filter(u => {
-			if (activeConvo.users.includes(u)) {
-				return false;
-			}
-			for (let c of window.player.activeConvos) {
-				if (c.users.includes(u)) {
-					return false;
-				}
-			}
-			return true;
-		});
-		if (users.length === 0) {
-			users = Object.keys(window.player.heros).filter(u => !activeConvo.users.includes(u));
-		}
-		if (users.length === 0) {
-			users = Object.keys(window.player.users).filter(u => !activeConvo.users.includes(u));
-		}
-		if (users.length !== 0) {
-			const user = users[Math.floor(Math.random() * users.length)];
-			activeConvo.users.push(user);
-			(activeConvo.usersAgainst.length > activeConvo.usersFor.length ? activeConvo.usersFor : activeConvo.usersAgainst).push(activeConvo.users.length - 1);
-		}
-	}
-
-	// Find user to say the message
-	const pro = activeConvo.goto % 2 === 0;
-	activeConvo.lastUser = activeConvo.nextUser;
-	activeConvo.nextUser = (pro ? activeConvo.usersFor : activeConvo.usersAgainst)[Math.floor(Math.random() * (pro ? activeConvo.usersFor : activeConvo.usersAgainst).length)];
-}
-
-const ignoredSections = [
-	"External links",
-	"See also",
-	"Further reading"
-];
-
-// Setup NLP
-window.nlp = nlp;
-nlp.extend((Doc, world) => {
-	world.addTags({
-		Heated: {
-			isA: 'Noun'
-		},
-	});
-	// Create list of custom words to include as topics, nouncs, etc.
-	// See list of tags here: https://observablehq.com/@spencermountain/compromise-tags
-	world.addWords({
-		discord: 'Company',
-		minecraft: 'Noun',
-		mojang: 'Company',
-		unity: 'Noun',
-		photoshop: 'Noun',
-		'id software': 'Company',
-		'square enix': 'Company',
-		'unreal engine': 'Noun',
-		'ue4': 'Noun',
-		nintendo: 'Company',
-		'dungeons and dragons': 'Noun',
-		'd&d': 'Noun',
-		teleport: 'Verb',
-		ngl: 'Acronym',
-		pssh: 'Interjection',
-		religion: ['Heated', 'Singular'],
-		christianity: ['Heated', 'Uncountable'],
-		systems: ['Heated', 'Plural'],
-		guns: ['Heated', 'Plural'],
-		abortion: ['Heated', 'Singular'],
-		vaccines: ['Heated', 'Plural'],
-		marijuana: ['Heated', 'Uncountable'],
-		immigration: ['Heated', 'Uncountable'],
-		'donald trump': ['Heated', 'LastName'],
-		'cancel culture': ['Heated', 'Uncountable']
-    });
-});
-
-/*
-TODO once we get some more positive conversations lmao
-"we need more <side>"-type messages
-const polarArguments = [
-	["capitalism", "communism"],
-	["evolution", "creationism"],
-	["liberal", "conservative"],
-	["democrat", "republican"],
-	["modernity", "tradition"],
-	["tpt mods", "di mods"]
-]
-*/
-
 // Random messages to send that might stir up a conversation
 // Right now that might happen only if the player responds
 // TODO allow these to start topic-related conversations with same chance as player messages
@@ -473,7 +345,8 @@ const nothingConversations = [
 	'anyone remember plasma clicker?',
 	'lol',
 	'lmao',
-	'im going to do a P2W Eternal speedrun!'
+	'im going to do a P2W Eternal speedrun!',
+	'pt is killing di'
 ].reduce((acc, curr, index) => {
 	acc['nothing' + index] = typeof curr === 'string' ? singleMessage(curr) : curr;
 	return acc;
@@ -583,46 +456,4 @@ const conversations = {
 	}
 }
 
-const welcomeMessages = [
-	// Extended list from https://gist.github.com/fourjr/0f47ce8a000c29cd4e24f8aeb7edd8e0
-	"[!!{username}!!](usernameOnClick) just joined the server - glhf!",
-	"[!!{username}!!](usernameOnClick) just joined. Everyone, look busy!",
-	"[!!{username}!!](usernameOnClick) just joined. Can I get a heal?",
-	"[!!{username}!!](usernameOnClick) joined your party.",
-	"[!!{username}!!](usernameOnClick) joined. You must construct additional pylons.",
-	"Ermagherd. [!!{username}!!](usernameOnClick) is here.",
-	"Welcome, [!!{username}!!](usernameOnClick). Stay awhile and listen.",
-	"Welcome, [!!{username}!!](usernameOnClick). We hope you brought pizza.",
-	"Welcome [!!{username}!!](usernameOnClick). Leave your weapons by the door.",
-	"A wild [!!{username}!!](usernameOnClick) appeared.",
-	"Swoooosh. [!!{username}!!](usernameOnClick) just landed.",
-	"Brace yourselves. [!!{username}!!](usernameOnClick) just joined the server.",
-	"[!!{username}!!](usernameOnClick) just joined. Hide your bananas.",
-	"[!!{username}!!](usernameOnClick) just arrived. Seems OP - please nerf.",
-	"[!!{username}!!](usernameOnClick) just slid into the server.",
-	"A [!!{username}!!](usernameOnClick) has spawned in the server.",
-	"Big [!!{username}!!](usernameOnClick) showed up!",
-	"Where's [!!{username}!!](usernameOnClick)? In the server!",
-	"[!!{username}!!](usernameOnClick) hopped into the server. Kangaroo!!",
-	"[!!{username}!!](usernameOnClick) just showed up. Hold my beer.",
-	"Challenger approaching - [!!{username}!!](usernameOnClick) has appeared!",
-	"It's a bird! It's a plane! Nevermind, it's just [!!{username}!!](usernameOnClick).",
-	"It's [!!{username}!!](usernameOnClick)! Praise the sun! \\[T]/",
-	"Never gonna give [!!{username}!!](usernameOnClick) up. Never gonna let [!!{username}!!](usernameOnClick) down.",
-	"Ha! [!!{username}!!](usernameOnClick) has joined! You activated my trap card!",
-	"Cheers, love! [!!{username}!!](usernameOnClick)'s here!",
-	"Hey! Listen! [!!{username}!!](usernameOnClick) has joined!",
-	"We've been expecting you [!!{username}!!](usernameOnClick)",
-	"It's dangerous to go alone, take [!!{username}!!](usernameOnClick)!",
-	"[!!{username}!!](usernameOnClick) has joined the server! It's super effective!",
-	"Cheers, love! [!!{username}!!](usernameOnClick) is here!",
-	"[!!{username}!!](usernameOnClick) is here, as the prophecy foretold.",
-	"[!!{username}!!](usernameOnClick) has arrived. Party's over.",
-	"Ready player [!!{username}!!](usernameOnClick)",
-	"[!!{username}!!](usernameOnClick) is here to kick butt and chew bubblegum. And [!!{username}!!](usernameOnClick) is all out of gum.",
-	"Hello. Is it [!!{username}!!](usernameOnClick) you're looking for?",
-	"[!!{username}!!](usernameOnClick) has joined. Stay a while and listen!",
-	"Roses are red, violets are blue, [!!{username}!!](usernameOnClick) joined this server with you",
-].map(message => id => message.replaceAll('[!!{username}!!](usernameOnClick)', `<b>${getDisplayName(id)}</b>`));
-
-export { startConversation, updateConversations, sendPlayerMessage, conversations, welcomeMessages, addJoinMessage };
+export { startConversation, updateConversations, sendPlayerMessage, conversations, addJoinMessage };
