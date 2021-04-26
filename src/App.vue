@@ -86,7 +86,7 @@ html {
     --color-influence: #5B85AA;
     --color-neg-influence: #F7BC9E;
 
-    --color-unpurchasable: #E25822;
+    --color-unpurchasable: #e25822;
     --color-purchasable: #22E158;
 
     --color-default-pfp: rgba(79,84,92,0.75);
