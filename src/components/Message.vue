@@ -2,7 +2,7 @@
 <div :class="{ message: true, first: message.first }">
     <div class="message-inner">
         <img class="pfp" v-if="message.first && profileImage" :src="profileImage" :alt="username">
-        <div class="pfp fa fa-user" v-else-if="message.first" :style="{ backgroundColor: pickColor(message.userId) }"></div>
+        <div class="pfp fa fa-user" v-else-if="message.first" :style="{ backgroundColor: pickColor(username) }"></div>
         <p class="short-timestamp" v-if="!message.first && message.joinMessage == null">{{ timeFormat.format(timestamp) }}</p>
         <p class="name" :style="{ color: roleColor }">{{ username }}
             <span class="timestamp" v-if="isToday(timestamp)">Today at {{ timeFormat.format(timestamp) }}</span>
@@ -27,7 +27,7 @@
 
 <script>
 import { heros, roles } from '../userdata.js';
-import { welcomeMessages } from '../conversations.js';
+import { welcomeMessages } from '../conversations/welcome.js';
 
 export default {
 	name: 'message',
@@ -91,8 +91,8 @@ export default {
     margin-right: 1em;
     position: relative;
 }
-.message.first .message-inner {
-    margin-top: 1em;
+.message.first {
+    padding-top: 1em;
 }
 .message .message-inner:hover {
     background-color: var(--background-message-hover);

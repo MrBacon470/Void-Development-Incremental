@@ -1,84 +1,80 @@
-import { SentimentIntensityAnalyzer } from 'vader-sentiment';
-import wiki from 'wikijs';
-import nlp from 'compromise';
 import Decimal from './break_eternity.js';
-import { heros } from './userdata.js';
+import { conversations as genericConversations, tryStartConversation as tryStartGenericConversation } from './conversations/generic.js';
+import { conversations as heatedConversations, onAddMessage as heatedOnAddMessage, tryStartConversation as tryStartHeatedConversation } from './conversations/heated.js';
+import { clean, branchSentiment } from './conversations/nlp.js';
+import { conversations as randomConversations, update as updateRandom } from './conversations/random.js';
+import { defaultTypingSpeed, defaultMessageDelay } from './conversations/utils.js';
+import { welcomeMessages } from './conversations/welcome.js';
 
-function startConversation(category, channel, convo, extra) {
-	// If convo is an array, choose a random one
-	if (Array.isArray(convo)) {
-		let weights = convo.map(c => ({ convo: c, weight: getWeight(c) })).filter(c => c.weight !== 0);
-		if (weights.length === 0) {
-			return;
+function handleResponse(activeConvo, index, message, response) {
+	if (typeof response === "number") {
+		activeConvo.nextMessage = response;
+	} else if (typeof response === "object") {
+		if (response.influence) {
+			message.influence = response.influence;
 		}
-		let totalWeight = weights.reduce((acc, curr) => acc + curr.weight, 0);
-		let random = Math.random() * totalWeight;
-		let weight = 0;
-		for (let c of weights) {
-			weight += c.weight;
-			if (random <= weight) {
-				convo = c.convo;
-				break;
-			}
+		if (typeof response.run === "function") {
+			response.run();
 		}
-	} else if (getWeight(convo) === 0) {
-		return;
+		if (response.goto != null) {
+			activeConvo.nextMessage = response.goto;
+		} else {
+			activeConvo.nextMessage = -1;
+		}
 	}
 
-	// Pick users for conversation
-	// TODO optimize
-	let conversingUsers = Object.keys(window.player.heros).filter(user => {
-		for (let c of window.player.activeConvos) {
-			if (c.users.includes(user)) {
-				return true;
-			}
-		}
-		return false;
-	});
-	conversingUsers = [...conversingUsers, ...conversations[convo].users.filter(u => typeof u === 'string')];
-	let users = conversations[convo].users.map(u => {
-		if (typeof u === 'object') {
-			let users = Object.keys(window.player.heros).filter(u => !conversingUsers.includes(u));
-			// TODO apply filters based on options stored in object
-			// Might mean moving the hero user prioritization from the conversingUsers construction
-			if (users.length === 0) {
-				users = Object.keys(window.player.heros).filter(u => !conversations[convo].users.includes(u));
-				if (users.length === 0) {
-					users = window.player.sortedUsers;
-				}
-			}
-			u = users[Math.floor(Math.random() * users.length)];
-		}
-		conversingUsers.push(u);
-		return u;
-	});
-
-	// Add to list of active conversations
-	const activeConvo = { convoId: convo, users, category, channel, nextMessage: 0, progress: 0, ...extra };
-	window.player.activeConvos.push(activeConvo);
-	if (typeof conversations[convo].init === 'function') {
-		conversations[convo].init.call(activeConvo);
+	if (activeConvo.nextMessage < 0 || activeConvo.nextMessage >= conversations[activeConvo.convoId].messages.length) {
+		window.player.activeConvos.splice(index, 1);
 	}
-	return activeConvo;
 }
 
-function getWeight(convoId) {
-	const convo = conversations[convoId];
-	let weight = convo.weight;
-	if (typeof weight === 'function') {
-		weight = weight.call(convo);
+function addMessage(category, channel, message, sender) {
+	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
+
+	// Duplicate message and strip out unnecessary data
+	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
+	content = content?.replaceAll(/[^\x20-\x7F]/g, "");
+	userId = sender || userId;
+	timestamp = timestamp || Date.now();
+	first = content && (messages.length === 0 ||
+						messages[messages.length - 1].userId !== userId ||
+						// separate messages if they're 7 minutes apart
+						timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000);
+
+	// Apply message effects
+	if (influence) {
+		influence = new Decimal(influence);
+		window.player.influence = window.player.influence.add(influence);
 	}
-	return Math.max(weight == null ? 1 : weight, 0);
+	if (stress) {
+		stress = new Decimal(stress);
+		window.player.stress = window.player.stress.add(stress);
+	}
+	heatedOnAddMessage(category, channel, message);
+
+	// Add message
+	const id = window.player.nextMessageId++;
+	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
+
+	// Mark channel as pinged
+	if (category != "DMs" && window.player.activeChannel.category != category || window.player.activeChannel.channel != channel) {
+		window.player.categories[category].channels[channel].ping = true;
+	}
+
+	// Have chance to start new convo if message wasn't part of existing one
+	if (category !== 'DMs' && content && Math.random() < (1 / (window.player.activeConvos.length + 2))) {
+		const cleaned = clean(content);
+		let sent = tryStartHeatedConversation(category, channel, cleaned, sender);
+		if (!sent) {
+			sent = tryStartGenericConversation(category, channel, cleaned);
+		}
+		if (!sent) {
+			console.log("No conversation found for " + cleaned.text());
+		}
+	}
 }
 
-function smallChatSlowdown() {
-	let total_users = 1 + Object.keys(window.player.heros).length + Object.keys(window.player.users).length;
-	return 1 + 60 / Math.pow(total_users, 0.6);
-}
-
-function updateConversations(delta) {
-	delta /= smallChatSlowdown();
-	
+export function updateConversations(delta) {
 	for (let index = window.player.activeConvos.length - 1; index >= 0; index--) {
 		let activeConvo = window.player.activeConvos[index];
 		const convo = conversations[activeConvo.convoId];
@@ -86,6 +82,8 @@ function updateConversations(delta) {
 
 		if (nextMessage.type === 'user' || (nextMessage.type === 'player' && nextMessage.optional)) {
 			activeConvo.progress += delta;
+
+			// Evaluation convo's next message's properties
 			if (typeof nextMessage.content === 'function' || nextMessage.user === 'function' || typeof nextMessage.typingDuration === 'function') {
 				nextMessage = Object.assign({}, nextMessage);
 				if (typeof nextMessage.content === 'function') {
@@ -99,9 +97,10 @@ function updateConversations(delta) {
 				}
 			}
 
-			let delay = nextMessage.delay == null ? 1 : nextMessage.delay;
+			// Determine if the convo's next message is ready to show
+			let delay = nextMessage.delay == null ? defaultMessageDelay : nextMessage.delay;
 			if (nextMessage.typingDuration || nextMessage.content) {
-				delay += nextMessage.typingDuration || (nextMessage.content.length * .05);
+				delay += nextMessage.typingDuration || (nextMessage.content.length * defaultTypingSpeed);
 			}
 			if (activeConvo.progress >= delay) {
 				// Time to show next message
@@ -111,6 +110,8 @@ function updateConversations(delta) {
 				}
 				addMessage(activeConvo.category, activeConvo.channel, nextMessage, activeConvo.users[user]);
 				activeConvo.progress = 0;
+
+				// Prepare for next message
 				if (typeof nextMessage.run === 'function') {
 					nextMessage.run.call(activeConvo);
 				}
@@ -131,283 +132,45 @@ function updateConversations(delta) {
 	}
 
 	// Add new topics randomly, based on how many active conversations there already are
-	if (window.player.activeChannel.category !== 'DMs' && window.player.activeChannel.channel !== 'Bob') {
-		randomTopicProgress += delta / 30;
-		if (randomMod < randomTopicProgress / (1 + window.player.activeConvos.length)) {
-			randomTopicProgress = 0;
-			startConversation("general", "general", Object.keys(nothingConversations));
-			randomMod = Math.random();
-		}
-	}
+	updateRandom(delta);
 }
 
-function addMessage(category, channel, message, sender) {
-	let messages = (category === "DMs" ? window.player.DMs : window.player.categories[category].channels)[channel].messages;
-	// Duplicate message and strip out unnecessary data
-	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
-	content = content?.replaceAll(/[^\x20-\x7F]/g, "");
-	userId = sender || userId;
-	timestamp = timestamp || Date.now();
-	first = content && (messages.length === 0 ||
-						messages[messages.length - 1].userId !== userId ||
-						// separate messages if they're 7 minutes apart
-						timestamp - messages[messages.length - 1].timestamp > 7 * 60 * 1000);
-	if (influence) {
-		influence = new Decimal(influence);
-		window.player.influence = window.player.influence.add(influence);
-	}
-	if (stress) {
-		stress = new Decimal(stress);
-		window.player.stress = window.player.stress.add(stress);
-	}
-	const id = window.player.nextMessageId++;
-	messages.push({ id, content, first, timestamp, userId, influence, stress, heat, joinMessage });
-
-	if (category != "DMs" && window.player.activeChannel.category != category || window.player.activeChannel.channel != channel) {
-		window.player.categories[category].channels[channel].ping = true;
-	}
-
-	// Have chance to start new convo if message wasn't part of existing one
-	if (category !== 'DMs' && content && Math.random() < (1 / (window.player.activeConvos.length + 2))) {
-		const cleaned = nlp(content.replaceAll(/[>#@]\w*/g, '')).match('(@hasQuestionMark|@hasComma|@hasQuote|@hasPeriod|@hasExclamation|@hasEllipses|@hasSemicolon|@hasSlash)').post(' ').trim().parent();
-		// TODO parse message for specific topics
-		const heatedTopics = cleaned.match('#Heated+').out('array').filter(topic => !window.player.activeConvos.some(c => c.topic === topic));
-		if (heatedTopics.length > 0 && Object.keys(window.player.heros).length + window.player.sortedUsers.length > conversations.heatedArgument.users.length) {
-			const topic = heatedTopics[Math.floor(Math.random() * heatedTopics.length)];
-			const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
-			console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
-			const heat = 2 - sentiment.compound;
-			const activeConvo = startConversation(category, channel, 'heatedArgument', { topic: nlp(topic).match('#Uncountable').found ? topic : nlp(topic).nouns().toPlural().text(), heat });
-			wiki({ apiUrl: "https://en.wikipedia.org/w/api.php" })
-				.page(topic)
-				.then(page => Promise.all([page.content(), page.summary()]))
-				.then(([ content, summary ]) => {
-					activeConvo.wikiContent = content.filter(c => c.content && !ignoredSections.includes(c.title)).map(c => nlp(c.content).sentences().first(3).text());
-					activeConvo.summary = nlp(summary).sentences().first(2).text();
-				})
-				.catch(console.error);
-		} else {
-			const nouns = cleaned.nouns().not('(#Plural|#Heated|#Uncountable)').out('array');
-			if (nouns.length > 0) {
-				startConversation(category, channel, Object.keys(genericNounConversations).filter(id => !window.player.activeConvos.some(c => c.convoId === id)), { noun: nouns[Math.floor(Math.random() * nouns.length)] });
-			} else {
-				console.log("No conversation found for " + message.content);
-			}
-		}
-	}
-}
-
-function handleResponse(convo, message, response) {
-	if (typeof response === "number") {
-		convo.nextMessage = response;
-	} else if (typeof response === "object") {
-		if (response.influence) {
-			message.influence = response.influence;
-		}
-		if (typeof response.run === "function") {
-			response.run();
-		}
-		if (response.goto != null) {
-			convo.nextMessage = response.goto;
-		} else {
-			convo.nextMessage = Number.POSITIVE_INFINITY;
-		}
-	}
-	// Returns true if this should be removed from the list of activeConvos
-	return convo.message < 0 || convo.nextMessage >= conversations[convo.convoId].messages.length;
-}
-
-function addJoinMessage(newUser) {
+export function addJoinMessage(newUser) {
 	addMessage('info', 'welcome', {
         joinMessage: Math.floor(Math.random() * welcomeMessages.length),
         userId: newUser
     });
 }
 
-function branchSentiment(convo, index, message, { positive, negative, neutral }) {
-	// TODO is vader-sentiment the fastest one available?
-	// I chose it over sentiment because that one didn't recognize things like "sure" as positive,
-	// and vader claims to support slang and modifiers (e.g. "not good") better. That probably
-	// also means its slower though (haven't benchmarked)
-	const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
-	console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
-	if (sentiment.compound > 0.05 && positive != null) {
-		if (handleResponse(convo, message, positive)) {
-			window.player.activeConvos.splice(index, 1);
-		}
-		return true;
-	} else if (sentiment.compound <= -.05 && negative != null) {
-		if (handleResponse(convo, message, negative)) {
-			window.player.activeConvos.splice(index, 1);
-		}
-		return true;
-	} else if (neutral != null) {
-		if (handleResponse(convo, message, neutral)) {
-			window.player.activeConvos.splice(index, 1);
-		}
-		return true;
-	}
-	return false;
-}
-
-function sendPlayerMessage(message) {
+export function sendPlayerMessage(message) {
 	const { category, channel } = window.player.activeChannel;
 
+	// Handle conversations waiting upon a player response
 	// TODO using mentions to "target" responses at specific convos?
 	let foundConvo = false;
 	window.player.activeConvos.forEach((c, index) => {
 		if (foundConvo) return;
 		if (c.category !== category || c.channel !== channel) return;
-		if (c.topic != null && message.heat) { // heated conversation
-			if (nlp(message.content).match(c.topic).found) {
-				// Modify heat based on sentiment of message
-				// TODO allow other users in the argument to respond to void?
-				const sentiment = SentimentIntensityAnalyzer.polarity_scores(message.content);
-				console.log("Sentiment of '" + message.content + "'' is " + sentiment.compound);
-				c.heat -= sentiment.compound;
-			}
-		}
 		const nextMessage = conversations[c.convoId].messages[c.nextMessage];
 		if (nextMessage.type === 'player' && (nextMessage.isValid == null || nextMessage.isValid(c, message))) {
 			if (nextMessage.nlpType === 'sentiment') {
-				foundConvo = branchSentiment(c, index, message, nextMessage);
+				foundConvo = branchSentiment(message.content, {
+					positive: () => handleResponse(c, index, message, nextMessage.positive),
+					neutral: () => handleResponse(c, index, message, nextMessage.neutral),
+					negative: () => handleResponse(c, index, message, nextMessage.negative)
+				});
 			}
-			// TODO other types of player response requests, using the "compromise" package
+			// TODO other types of player response requests
 		}
 	});
 
 	addMessage(category, channel, message);
 }
 
-function getDisplayName(user) {
-	return user in heros ? heros[user].username : user;
-}
-
-// Random messages to send that might stir up a conversation
-// Right now that might happen only if the player responds
-// TODO allow these to start topic-related conversations with same chance as player messages
-const nothingConversations = [
-	'Why do systems have to be so annoying?',
-	'I love shooting guns in my backyard',
-	'Lowkey think vaccines are bad',
-	'Did anyone else smoke some dank marijuana for 4/20?',
-	'Immigration = ???. Discuss.',
-	'God I hate Donald Trump, so glad he\'s gone',
-	'Cancel culture is the worst',
-	'Can we send memes in #general?',
-	'Howdy :texas:',
-	'Are hotdogs considered sandwiches?',
-	'Are ice cream sandwiches considered sandwiches?',
-	'Are pizzas considered sandwiches?',
-	'Are hamburgers considered sandwiches?',
-	'This server is really nice',
-	'DAE remember chemcremental?',
-	'Is cereal a soup?',
-	'Would you rather drink a melted crayon, or snort a crushed crayon',
-	'Would you rather be able to teleport or turn invisible?',
-	'Anyone here see last night\'s game?',
-	'Guys I\'m so excited for the next Minecraft update',
-	'Anyone else hyped for the next season of Fortnite?',
-	'Swag',
-	'We do a little trolling',
-	'Hey chat',
-	'gm',
-	'gn',
-	':ban:',
-	'Why does everyone here hate Java?',
-	'Why does everyone here hate C#?',
-	'Why does everyone here hate Python?',
-	'Why does everyone here hate Javscript?',
-	'dead',
-	'rip chat',
-	'hello',
-	'how is everyone :P',
-	'amogus',
-	'is this loss?',
-	'f missed active chat',
-	'lasted',
-	'We do a large amount of trolling',
-	'We do a minuscule amount of tomfoolery',
-	'hi',
-	'hey',
-	'Is this the better Jacorb Server?',
-	'Gamening',
-	'I think cereal is a broth',
-	'Is Void Dead?',
-	'Dead Chat XD',
-	'Update when?',
-	'hello',
-	'?ban',
-	'>level',
-	'why is everyone afk in the vc?',
-	'a',
-	'does anyone still play Chemcremental?',
-	'anyone remember plasma clicker?',
-	'lol',
-	'lmao',
-	'im going to do a P2W Eternal speedrun!',
-	'pt is killing di'
-].reduce((acc, curr, index) => {
-	acc['nothing' + index] = typeof curr === 'string' ? singleMessage(curr) : curr;
-	return acc;
-}, {});
-
-const genericNounConversations = [
-	{
-		messages: [
-			{ type: 'user', user: 0, content() { return `${this.noun}? I love ${this.noun}!` } },
-			{ type: 'user', user: 1, content() { return `Pssh, ${this.noun} is so overrated. Get something new to like` }, delay: 2 },
-			{ type: 'player', optional: true, delay: 10, isValid: (convo, message) => nlp(message.content).match(convo.noun).found, nlpType: 'sentiment', positive: 3, negative: { goto: 4, influence: -1 }, goto: -1 },
-			{ type: 'user', user: 0, content() { return `THANK YOU void, finally someone understands` }, delay: 3, influence: 1, goto: -1 },
-			{ type: 'user', user: 0, content() { return `jfc void, come on.` }, delay: 2 },
-			{ type: 'user', user: 1, content() { return `lmao get trolled void and ${getDisplayName(this.users[0])}` }, delay: 2 }
-		],
-		users: [ {}, {} ]
-	},
-	{
-		messages: [
-			{ type: 'user', user: 0, content() { return `Hmm, I used to hate ${nlp(this.noun).nouns().toPlural().text()} but then I realized they're actually really easy to like` } }
-		],
-		users: [ {} ]
-	},
-	{
-		init() {
-			wiki({ apiUrl: "https://en.wikipedia.org/w/api.php" })
-				.page(this.noun)
-				.then(page => Promise.all([page.content(), page.summary()]))
-				.then(([content, summary]) => {
-					const contents = [...content.filter(c => c.content && !ignoredSections.includes(c.title)).map(c => c.content), summary];
-					this.wikiContent = nlp(contents[Math.floor(Math.random() * contents.length)]).sentences().first(2).text();
-				})
-				.catch(console.error);
-		},
-		messages: [
-			{ type: 'user', user: 0, content() { return this.wikiContent ? `I looked up ${this.noun} on wikipedia and you won't believe what it said: ${this.wikiContent}` : `I've actually been meaning to do some research on ${this.noun}` }, delay: 10, typingDuration: 3 }
-		],
-		users: [ {} ]
-	},
-	{
-		messages: [
-			{ type: 'user', user: 0, content() { return `oh man me and ${getDisplayName(this.users[1])} were just discussing ${this.noun}. Right @${getDisplayName(this.users[1])}?` } },
-			{ type: 'user', user: 1, content() { return `who pinged me?` }, delay: 20 },
-			{ type: 'user', user: 0, content() { return `me. Do you remember us talking about ${this.noun}?` } },
-			{ type: 'user', user: 1, content() { return `no lol` } }
-		],
-		users: [ {}, {} ]
-	}
-].reduce((acc, curr, index) => {
-	acc['genericNoun' + index] = {
-		...curr,
-		weight() {
-			return this.users.length > window.player.sortedUsers.length + Object.keys(window.player.heros).length ? 0 : curr.weight || 1;
-		}
-	};
-	return acc;
-}, {});
-
-const conversations = {
-	...nothingConversations,
-	...genericNounConversations,
+export const conversations = {
+	...randomConversations,
+	...genericConversations,
+	...heatedConversations,
 	intro: {
 		messages: [
 			{ type: 'user', user: 0, content: 'Hey void, create discord server rq or else :ban:', delay: 0 },
@@ -421,39 +184,5 @@ const conversations = {
 		users: [
 			'Bob'
 		]
-	},
-	// TODO make arguments support multiple messages to be typed simultaneously
-	heatedArgument: {
-		init() {
-			this.heat = this.heat == null ? this.heat : 2;
-			this.usersFor = this.usersFor || [ 0 ];
-			this.usersAgainst = this.usersAgainst || [ 1 ];
-			this.nextMessage = this.nextMessage || 0;
-			findNextMessage(this);
-			if (this.lastUser == null) {
-				this.lastUser = "667109969438441486";
-			}
-		},
-		messages: [
-			// duplicated arguments are due to having versions for each side of the argument
-			// Even arguments will be said by a "pro" user and odd arguments by an "against" user
-			createArgument(function() { return `Oh, we're talking about ${this.topic}? I might need to mute this channel ngl`; }, { heat: -1 }),
-			createArgument(function() { return `Oh, we're talking about ${this.topic}? I might need to mute this channel ngl`; }, { heat: -1 }),
-			createArgument(function() { return `for what it's worth, I personally like ${this.topic} a lot`; }),
-			createArgument(function() { return `ugh I can't believe people are actually defending ${this.topic}`; }, { heat: 1 }),
-			createArgument(function() { return this.wikiContent ? `I looked up ${this.topic}, and apparently "${this.wikiContent[Math.floor(Math.random() * this.wikiContent.length)]}"` : `Someone should look into ${this.topic}, I don't think any of us know what we're talking about`; }),
-			createArgument(function() { return this.wikiContent ? `I looked up ${this.topic}, and apparently "${this.wikiContent[Math.floor(Math.random() * this.wikiContent.length)]}"` : `Someone should look into ${this.topic}, I don't think any of us know what we're talking about`; }),
-			createArgument(function() { return this.summary ? `Speaking of ${this.topic}, did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
-			createArgument(function() { return this.summary ? `Speaking of ${this.topic}, did y'all know ${nlp(this.summary).first(1).toLowerCase().parent().text()}` : `I really wish I knew more about ${this.topic} lol`; }),
-			createArgument(function() { return `i like people that like ${this.topic} and i dislike people who dislike ${this.topic}`; }, { heat: -1 }),
-			createArgument(function() { return `i dislike people that like ${this.topic} and i like people who dislike ${this.topic}`; }, { heat: -1 }),
-			createArgument(function() { return `The more I've thought about it the more I've really liked ${this.topic}`; }),
-			createArgument(function() { return `${this.topic} is so bad i'm going to start a rant about how bad it is by pinging everyone`; }, { stress: 1, heat: 1 }),
-			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with me on ${this.topic}?` : `Tell us how you really feel about ${this.topic}, ${getDisplayName(this.users[this.lastUser])}`; }),
-			createArgument(function() { return this.nextUser === this.lastUser ? `Anyone disagree with me on ${this.topic}?` : `I'm not sure I see your point about ${this.topic} ${getDisplayName(this.users[this.lastUser])} lol`; }, { heat: -1 })
-		],
-		users: [ {}, {} ]
 	}
-}
-
-export { startConversation, updateConversations, sendPlayerMessage, conversations, addJoinMessage };
+};

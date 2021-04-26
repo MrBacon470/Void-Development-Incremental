@@ -44,16 +44,14 @@
 <script>
 import Message from './Message.vue';
 import Welcome from './Welcome.vue';
-import store from './Store.vue';
+import Store from './Store.vue';
 import { sendPlayerMessage, conversations } from '../conversations.js';
 import { heros } from '../userdata.js';
-import Store from "@/components/Store";
 
 export default {
 	name: 'channel',
 	components: {
-    Store,
-		Message, Welcome, store,
+		Message, Welcome, Store,
 	},
     data() {
         return {
