@@ -53,7 +53,7 @@ export const conversations = [
 	'Why does everyone here hate Java?',
 	'Why does everyone here hate C#?',
 	'Why does everyone here hate Python?',
-	'Why does everyone here hate Javscript?',
+	'Why does everyone here hate Javascript?',
 	'dead',
 	'rip chat',
 	'hello',
