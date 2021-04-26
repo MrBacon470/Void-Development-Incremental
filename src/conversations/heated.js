@@ -21,7 +21,7 @@ nlp.extend((Doc, world) => {
 		vaccines: ['Heated', 'Plural'],
 		marijuana: ['Heated', 'Uncountable'],
 		immigration: ['Heated', 'Uncountable'],
-		'donald trump': ['Heated', 'LastName'],
+		'donald trump': ['Heated', 'Person'],
 		'cancel culture': ['Heated', 'Uncountable']
 	});
 });
@@ -120,9 +120,9 @@ export function onAddMessage(category, channel, message) {
 				modifier = 1;
 			}
 
-			// If using sentiment, halve any heat gain
+			// If using sentiment, lower any heat gain
 			if (message.heat == null && heat > 0) {
-				modifier /= 2;
+				modifier /= 1.25;
 			}
 
 			// Modify heat based on sentiment of message

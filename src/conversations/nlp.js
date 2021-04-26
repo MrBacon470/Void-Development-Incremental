@@ -31,7 +31,7 @@ export function getSentiment(str) {
 	// and vader claims to support slang and modifiers (e.g. "not good") better. That probably
 	// also means its slower though (haven't benchmarked)
 	const sentiment = SentimentIntensityAnalyzer.polarity_scores(str);
-	console.log("Sentiment of '" + str + "'' is " + sentiment.compound);
+	console.log("Sentiment of '" + str + "' is " + sentiment.compound);
 	return sentiment.compound;
 }
 

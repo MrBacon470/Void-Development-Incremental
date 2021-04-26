@@ -209,8 +209,11 @@ window.vue = new Vue({
 // Setup game loop
 function update(currTime) {
 	// TODO offline time doesn't work if using performance.now()
-	const delta = Math.max(0, (currTime - store.currentTime) / 1000);
+	let delta = Math.max(0, (currTime - store.currentTime) / 1000);
 	store.timePlayed += delta;
+	if (store.devSpeed) {
+		delta *= store.devSpeed;
+	}
 
 	updateConversations(delta);
 
