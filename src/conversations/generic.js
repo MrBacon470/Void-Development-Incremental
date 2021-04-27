@@ -7,7 +7,7 @@ export function tryStartConversation(category, channel, cleaned) {
 	if (nouns.length > 0) {
 		const convoId = Object.keys(conversations).filter(id => !window.player.activeConvos.some(c => c.convoId === id));
 		const noun = nouns[Math.floor(Math.random() * nouns.length)];
-		startConversation(category, channel, convoId, conversations[convoId], { noun });
+		startConversation(category, channel, convoId, convoId.map(c => conversations[c]), { noun });
 		return true;
 	}
 	return false;
