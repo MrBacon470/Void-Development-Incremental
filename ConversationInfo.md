@@ -28,8 +28,8 @@ Each conversation object must have a messages and users properties, and an optio
 	- `type: string` - one of 'player' or 'user', indicating if it's a message that will be automatically sent or a response from the player
 	- `run: function` - an optional function that runs when this message is sent, with `this` being the current state of the conversation.
 	- `goto: number | function() => number` - by default, the next message in the conversation is the next one in the array. This optional property overrides that behavior to go to the specified index. This can be used to make more complex conversations with loops or branches. Can also be a function that gets called with `this` being the current state of the conversation.
-	- `influence: number | string | Decimal` - an amount of influence this message will give or remove
-	- `stress: number | string | Decimal` - an amount of stress this message will give or remove
+	- `influence: number | string | Decimal | function() => number | string | Decimal` - an amount of influence this message will give or remove
+	- `stress: number | string | Decimal | function() => number | string | Decimal` - an amount of stress this message will give or remove
 	- `delay: number = 2` - how long to wait for a player response if `optional` is true, or how long before a user waits before starting to type
 	- `weight: number | function() => number = 1` - An optional weighting to give certain messages higher or lower priority compared to others. Set to 0 to disable messages completely. This is currently only used to disabled generic conversations that require more users than are currently available.
 
