@@ -74,6 +74,7 @@ function addMessage(category, channel, message, sender) {
 	}
 }
 
+const potentialFunctionProperties = ['content', 'user', 'typingDuration', 'influence', 'stress', 'heat'];
 export function updateConversations(delta) {
 	for (let index = window.player.activeConvos.length - 1; index >= 0; index--) {
 		let activeConvo = window.player.activeConvos[index];
@@ -84,17 +85,13 @@ export function updateConversations(delta) {
 			activeConvo.progress += delta;
 
 			// Evaluation convo's next message's properties
-			if (typeof nextMessage.content === 'function' || nextMessage.user === 'function' || typeof nextMessage.typingDuration === 'function') {
+			if (potentialFunctionProperties.some(prop => typeof nextMessage[prop] === 'function')) {
 				nextMessage = Object.assign({}, nextMessage);
-				if (typeof nextMessage.content === 'function') {
-					nextMessage.content = nextMessage.content.call(activeConvo);
-				}
-				if (typeof nextMessage.user === 'function') {
-					nextMessage.user = nextMessage.user.call(activeConvo);
-				}
-				if (typeof nextMessage.typingDuration === 'function') {
-					nextMessage.typingDuration = nextMessage.typingDuration.call(activeConvo);
-				}
+				potentialFunctionProperties.forEach(prop => {
+					if (typeof nextMessage[prop] === 'function') {
+						nextMessage[prop] = nextMessage[prop].call(activeConvo);
+					}
+				});
 			}
 
 			// Determine if the convo's next message is ready to show
