@@ -9,6 +9,7 @@ export const welcomeMessages = [
 	"[!!{username}!!](usernameOnClick) joined. You must construct additional pylons.",
 	"Ermagherd. [!!{username}!!](usernameOnClick) is here.",
 	"Welcome, [!!{username}!!](usernameOnClick). Stay awhile and listen.",
+	"Welcome, [!!{username}!!](usernameOnClick). We were expecting you ( ͡° ͜ʖ ͡°)",
 	"Welcome, [!!{username}!!](usernameOnClick). We hope you brought pizza.",
 	"Welcome [!!{username}!!](usernameOnClick). Leave your weapons by the door.",
 	"A wild [!!{username}!!](usernameOnClick) appeared.",
