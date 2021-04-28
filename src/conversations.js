@@ -33,7 +33,6 @@ function addMessage(category, channel, message, sender) {
 
 	// Duplicate message and strip out unnecessary data
 	let { content, first, timestamp, userId, influence, stress, heat, joinMessage } = message;
-	content = content?.replaceAll(/[^\x20-\x7F]/g, "");
 	userId = sender || userId;
 	timestamp = timestamp || Date.now();
 	first = content && (messages.length === 0 ||
