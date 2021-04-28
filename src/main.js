@@ -147,7 +147,7 @@ if (loadedData == null) {
 	fixData(loadedData, startData);
 } else {
 	try {
-		loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(atob(loadedData)));
+		loadedData = Object.assign({}, JSON.parse(JSON.stringify(startData)), JSON.parse(decodeURIComponent(escape(atob(loadedData)))));
 	} catch {
 		console.log("Error while parsing save. Starting fresh.");
 		loadedData = JSON.parse(JSON.stringify(startData));
@@ -183,7 +183,7 @@ window.hardReset = function() {
 // Set up auto-saving every second
 window.save = function() {
 	if (store.autosave) {
-		localStorage.setItem(storageKey, btoa(JSON.stringify(window.player)));
+		localStorage.setItem(storageKey, btoa(unescape(encodeURIComponent(JSON.stringify(window.player)))));
 	}
 }
 setInterval(window.save, 1000);
