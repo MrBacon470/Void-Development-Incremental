@@ -88,6 +88,7 @@ html {
 
     --color-unpurchasable: #e25822;
     --color-purchasable: #22E158;
+    --color-maxed: #fffc40;
 
     --color-default-pfp: rgba(79,84,92,0.75);
 }

@@ -22,7 +22,8 @@ nlp.extend((Doc, world) => {
 		marijuana: ['Heated', 'Uncountable'],
 		immigration: ['Heated', 'Uncountable'],
 		'donald trump': ['Heated', 'Person'],
-		'cancel culture': ['Heated', 'Uncountable']
+		'cancel culture': ['Heated', 'Uncountable'],
+		'mental health': ['Heated', 'Uncountable']
 	});
 });
 

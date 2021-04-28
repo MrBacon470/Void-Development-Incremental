@@ -8,7 +8,7 @@
     </div>
     <p class="upgradesCategoryHeader">Upgrade Category 2</p>
     <div class="upgradesGrid">
-      <button v-on:click="logSomething('test1')">Purchase Upgrade 1</button>
+      <button class="maxed" v-on:click="logSomething('test1')">Purchase Upgrade 1</button>
       <button v-on:click="logSomething('test2')">Purchase Upgrade 2</button>
     </div>
   </div>
@@ -65,6 +65,9 @@ export default {
   }
   .purchasable {
     color: var(--color-purchasable);
+  }
+  .maxed {
+    color: var(--color-maxed);
   }
 
   .upgradesGrid button {
