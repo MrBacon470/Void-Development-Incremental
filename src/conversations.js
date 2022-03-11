@@ -169,7 +169,7 @@ export const conversations = {
 	...heatedConversations,
 	intro: {
 		messages: [
-			{ type: 'user', user: 0, content: 'Hey void, create discord server rq or else :ban:', delay: 0 },
+			{ type: 'user', user: 0, content: 'Hey Void, create discord server rq or else :ban:', delay: 0 },
 			{ type: 'player', nlpType: 'sentiment', positive: { influence: 1, goto: 4 }, neutral: 2, negative: 3 },
 			{ type: 'user', user: 0, content: 'Come on, it\'s a great idea! Please?', goto: 1 },
 			{ type: 'user', user: 0, content: 'You don\'t have a choice in this matter >.<', goto: 1 },
