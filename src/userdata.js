@@ -1,7 +1,7 @@
 export const heros = {
     "350057688182292482": {
         profileImage: "avatars/4033eea2a3b4cb76aa7b2cb44fc854bd.png",
-        username: "TheMMKeyHolder",
+        username: "TheMKeyHolder",
         role: 'contributor',
         status: "Online",
         playing: "OM:R"
