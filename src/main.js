@@ -186,7 +186,7 @@ window.save = function() {
 		localStorage.setItem(storageKey, btoa(unescape(encodeURIComponent(JSON.stringify(window.player)))));
 	}
 }
-setInterval(window.save, 1000);
+setInterval(window.save, 10000);
 
 // Setup Vue
 Vue.filter('numberFormat', function (value) {
